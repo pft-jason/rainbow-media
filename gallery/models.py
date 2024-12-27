@@ -8,6 +8,31 @@ from django.http import Http404
 from akismet import Akismet
 from django.db.models import Q
 
+class CustomImageManager(models.Manager):
+    def get_filtered_images(self, user):
+        """Filters images based on privacy settings."""
+        
+        # Start by getting all images with related follower information
+        images = self.all().prefetch_related(
+            models.Prefetch('user__followers', queryset=models.User.objects.all())
+        )
+        
+        # If user is staff, show all images
+        if user.is_staff:
+            return images
+
+        # If user is authenticated but not staff, filter based on privacy settings
+        if user.is_authenticated:
+            return images.filter(
+                Q(privacy="public") |
+                Q(privacy="followers", user__followers=user) |
+                Q(privacy="private", user=user)
+            )
+        
+        # If user is not authenticated, only show public images
+        return images.filter(privacy="public")
+
+
 # ----------------------------------------------------------------------------- 
 # Helper Functions
 # -----------------------------------------------------------------------------
@@ -152,6 +177,7 @@ class Image(models.Model):
     tags = models.ManyToManyField(Tag, blank=True, related_name='images', through='ImageTag')
     popularity_score = models.FloatField(default=0.0)
 
+    objects = CustomImageManager()
     privacy = models.CharField(max_length=20, choices=[('public', 'Public'), ('private', 'Private'), ('followers', 'Followers Only'), ('users', 'Site Members Only')], default='public')
 
     moderation_status = models.CharField(max_length=10, choices=ModerationStatus.choices, default=ModerationStatus.PENDING)
