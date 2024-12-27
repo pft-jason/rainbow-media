@@ -272,6 +272,27 @@ class Follow(models.Model):
     class Meta:
         unique_together = ('follower', 'followed')
 
+class Report(models.Model):
+    """
+    Represents a report made by a user against inappropriate content (images or comments).
+    """
+    REPORT_TYPES = [
+        ("SPAM", "Spam"),
+        ("ABUSE", "Abuse"),
+        ("OTHER", "Other"),
+    ]
+
+    reported_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reports")
+    image = models.ForeignKey(Image, on_delete=models.CASCADE, null=True, blank=True)
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True, blank=True)
+    report_type = models.CharField(max_length=10, choices=REPORT_TYPES)
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Report by {self.reported_by.username} on {'image' if self.image else 'comment'}"
+
+
 
 # ----------------------------------------------------------------------------- 
 # Moderation Functions
