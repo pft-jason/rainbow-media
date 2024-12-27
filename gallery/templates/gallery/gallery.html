@@ -1,16 +1,28 @@
-<!-- templates/gallery.html -->
-{% extends "base_generic.html" %}
-
-{% block content %}
-  <h2>Image Gallery</h2>
-  <div class="gallery">
-    {% for image in images %}
-      <div class="image-item">
-        <img src="{{ image.image_file.url }}" alt="{{ image.title }}">
-        <h3>{{ image.title }}</h3>
-        <p>{{ image.description }}</p>
-        <p><strong>Tags:</strong> {% for tag in image.tags.all %}{{ tag.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
-      </div>
+<!-- gallery.html -->
+<h1>Gallery</h1>
+<ul>
+    {% for image in page_obj %}
+        <li>
+            <a href="{% url 'image_detail' image.id %}">{{ image.title }}</a>
+        </li>
     {% endfor %}
-  </div>
-{% endblock %}
+</ul>
+
+<!-- Pagination Controls -->
+<div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
