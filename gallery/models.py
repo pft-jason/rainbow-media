@@ -152,7 +152,7 @@ class Image(models.Model):
     tags = models.ManyToManyField(Tag, blank=True, related_name='images', through='ImageTag')
     popularity_score = models.FloatField(default=0.0)
 
-    privacy = models.CharField(max_length=20, choices=[('public', 'Public'), ('private', 'Private'), ('followers', 'Followers Only')], default='public')
+    privacy = models.CharField(max_length=20, choices=[('public', 'Public'), ('private', 'Private'), ('followers', 'Followers Only'), ('users', 'Site Members Only')], default='public')
 
     moderation_status = models.CharField(max_length=10, choices=ModerationStatus.choices, default=ModerationStatus.PENDING)
     moderation_updated_at = models.DateTimeField(null=True, blank=True)
