@@ -16,10 +16,14 @@ def upload_image(request):
             image.user = request.user
             image.save()
             return redirect('gallery')  # Redirect to the gallery page after upload
+        else:
+            # Handle invalid form
+            return render(request, 'upload_image.html', {'form': form, 'error': 'There was an error with your upload.'})
     else:
         form = ImageUploadForm()
 
     return render(request, 'upload_image.html', {'form': form})
+
 
 def gallery_view(request):
     # Get filtered images based on the current user
