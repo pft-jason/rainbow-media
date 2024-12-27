@@ -2,6 +2,7 @@
 from django.shortcuts import render, redirect
 from .forms import ImageUploadForm
 from django.contrib.auth.decorators import login_required
+from .models import Image
 
 @login_required
 def upload_image(request):
@@ -17,3 +18,7 @@ def upload_image(request):
         form = ImageUploadForm()
 
     return render(request, 'upload_image.html', {'form': form})
+
+def gallery(request):
+    images = Image.objects.filter(is_public=True)  # Only show public images
+    return render(request, 'gallery.html', {'images': images})
