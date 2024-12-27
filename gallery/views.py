@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from .forms import ImageUploadForm
 from django.contrib.auth.decorators import login_required
 from .models import Image
+from django.core.exceptions import PermissionDenied
 
 @login_required
 def upload_image(request):
@@ -19,6 +20,8 @@ def upload_image(request):
 
     return render(request, 'upload_image.html', {'form': form})
 
-def gallery(request):
-    images = Image.objects.filter(is_public=True)  # Only show public images
+def gallery_view(request):
+    # Get filtered images based on the current user
+    images = Image.objects.get_filtered_images(request.user)
+    
     return render(request, 'gallery.html', {'images': images})
