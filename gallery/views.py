@@ -4,6 +4,7 @@ from .forms import ImageUploadForm
 from django.contrib.auth.decorators import login_required
 from .models import Image
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 
 @login_required
 def upload_image(request):
@@ -32,9 +33,13 @@ def gallery_view(request):
     return render(request, 'gallery.html', {'page_obj': page_obj})
 
 def image_detail(request, image_id):
-    # Example: Show a single image
     try:
         image = Image.objects.get(id=image_id)
     except Image.DoesNotExist:
         raise Http404("Image not found")
+    
+    # Check if the user has permission to view the image based on privacy settings
+    if not get_image_visibility(request.user, image):
+        raise PermissionDenied("You do not have permission to view this image.")
+    
     return render(request, 'image_detail.html', {'image': image})
