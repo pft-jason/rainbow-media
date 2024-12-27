@@ -1,0 +1,16 @@
+<!-- templates/gallery.html -->
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h2>Image Gallery</h2>
+  <div class="gallery">
+    {% for image in images %}
+      <div class="image-item">
+        <img src="{{ image.image_file.url }}" alt="{{ image.title }}">
+        <h3>{{ image.title }}</h3>
+        <p>{{ image.description }}</p>
+        <p><strong>Tags:</strong> {% for tag in image.tags.all %}{{ tag.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}
