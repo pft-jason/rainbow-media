@@ -180,7 +180,7 @@ class Image(models.Model):
     popularity_score = models.FloatField(default=0.0)
 
     objects = CustomImageManager()
-    privacy = models.CharField(max_length=20, choices=[('public', 'Public'), ('private', 'Private'), ('followers', 'Followers Only'), ('users', 'Site Members Only')], default='public')
+    privacy = models.CharField(max_length=20, choices=[('public', 'Public'), ('users', 'Site Members Only'), ('followers', 'Followers Only'), ('private', 'Private')], default='public')
 
     moderation_status = models.CharField(max_length=10, choices=ModerationStatus.choices, default=ModerationStatus.PENDING)
     moderation_updated_at = models.DateTimeField(null=True, blank=True)

@@ -1,7 +1,15 @@
+{% extends "base.html" %}
 
-  <h2>Upload Image</h2>
-  <form method="POST" enctype="multipart/form-data">
+{% block title %}Upload Image{% endblock %}
+
+{% block content %}
+<h2>Upload Image</h2>
+<form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Upload Image</button>
-  </form>
+    <button type="submit" class="btn btn-primary">Upload</button>
+</form>
+{% if error %}
+    <div class="alert alert-danger mt-3">{{ error }}</div>
+{% endif %}
+{% endblock %}

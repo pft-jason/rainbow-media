@@ -10,7 +10,7 @@ class ImageUploadForm(forms.ModelForm):
     
     class Meta:
         model = Image
-        fields = ['title', 'description', 'image_file', 'categories', 'tags']
+        fields = ['title', 'description', 'image_file', 'categories', 'tags', 'privacy']
 
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField()

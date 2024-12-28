@@ -33,7 +33,7 @@ def upload_image(request):
 @login_required
 def profile(request):
     user_profile, created = UserProfile.objects.get_or_create(user=request.user)
-    user_images = Image.objects.filter(user=request.user)[:8]  # Display the latest 8 images
+    user_images = Image.objects.get_filtered_images(request.user)[:8]  # Display the latest 8 images
     return render(request, 'profile.html', {'user_profile': user_profile, 'user_images': user_images})
 
 @login_required
