@@ -69,6 +69,13 @@ def gallery(request):
     
     return render(request, 'gallery.html', {'page_obj': page_obj})
 
+def user_gallery(request, username):
+    user = get_object_or_404(User, username=username)
+    images = Image.objects.get_filtered_images(request.user).filter(user=user).order_by('-uploaded_at')
+    paginator = Paginator(images, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'user_gallery.html', {'page_obj': page_obj, 'user': user})
 def image_detail(request, image_id):
     try:
         image = Image.objects.get(id=image_id)
