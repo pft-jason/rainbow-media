@@ -1,11 +1,12 @@
 # views.py
 from django.shortcuts import render, redirect
-from .forms import ImageUploadForm
+from .forms import ImageUploadForm, UserRegistrationForm
 from django.contrib.auth.decorators import login_required
 from .models import Image, get_image_visibility
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.core.paginator import Paginator
+from django.contrib.auth import login
 
 
 @login_required
@@ -25,6 +26,17 @@ def upload_image(request):
         form = ImageUploadForm()
 
     return render(request, 'upload_image.html', {'form': form})
+
+def register(request):
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('gallery')
+    else:
+        form = UserRegistrationForm()
+    return render(request, 'register.html', {'form': form})
 
 
 def gallery(request):

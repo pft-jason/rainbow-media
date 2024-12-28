@@ -27,7 +27,7 @@ class CustomImageManager(models.Manager):
         if user.is_authenticated:
             return images.filter(
                 Q(privacy="public") |
-                Q(privacy="followers", user__followers=user) |
+                Q(privacy="followers", user__followers__follower=user) |
                 Q(privacy="private", user=user)
             )
         
