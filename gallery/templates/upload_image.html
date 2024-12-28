@@ -1,10 +1,7 @@
-{% extends "base_generic.html" %}
 
-{% block content %}
   <h2>Upload Image</h2>
   <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Upload Image</button>
   </form>
-{% endblock %}

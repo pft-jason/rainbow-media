@@ -2,9 +2,11 @@
 from django.shortcuts import render, redirect
 from .forms import ImageUploadForm
 from django.contrib.auth.decorators import login_required
-from .models import Image
+from .models import Image, get_image_visibility
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
+from django.core.paginator import Paginator
+
 
 @login_required
 def upload_image(request):
@@ -25,7 +27,7 @@ def upload_image(request):
     return render(request, 'upload_image.html', {'form': form})
 
 
-def gallery_view(request):
+def gallery(request):
     # Get filtered images based on the current user
     images = Image.objects.get_filtered_images(request.user)
 

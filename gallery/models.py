@@ -7,6 +7,8 @@ from django.conf import settings
 from django.http import Http404
 from akismet import Akismet
 from django.db.models import Q
+from django.core.paginator import Paginator
+
 
 class CustomImageManager(models.Manager):
     def get_filtered_images(self, user):
@@ -14,7 +16,7 @@ class CustomImageManager(models.Manager):
         
         # Start by getting all images with related follower information
         images = self.all().prefetch_related(
-            models.Prefetch('user__followers', queryset=models.User.objects.all())
+            models.Prefetch('user__followers', queryset=Follow.objects.all())
         )
         
         # If user is staff, show all images
@@ -187,7 +189,8 @@ class Image(models.Model):
     alt_text = models.CharField(max_length=255, blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        self.popularity_score = self.calculate_popularity_score()
+        if self.pk:
+            self.popularity_score = self.calculate_popularity_score()
         if self.moderation_status != ModerationStatus.PENDING:
             self.moderation_updated_at = now()
         super().save(*args, **kwargs)
