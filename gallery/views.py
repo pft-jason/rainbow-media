@@ -7,6 +7,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.core.paginator import Paginator
 from django.contrib.auth import login
+from django.contrib.auth.models import User
 import json
 
 
@@ -31,8 +32,9 @@ def upload_image(request):
 
 @login_required
 def profile(request):
-    user_profile = get_object_or_404(UserProfile, user=request.user)
-    return render(request, 'profile.html', {'user_profile': user_profile})
+    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+    user_images = Image.objects.filter(user=request.user)[:8]  # Display the latest 8 images
+    return render(request, 'profile.html', {'user_profile': user_profile, 'user_images': user_images})
 
 @login_required
 def profile_edit(request):

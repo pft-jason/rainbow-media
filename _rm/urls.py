@@ -11,7 +11,7 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('admin/', admin.site.urls),
     path('upload/', views.upload_image, name='upload_image'),
-    path('', views.gallery, name='gallery'),
+    path('gallery/', views.gallery, name='gallery'),
     path('image/<int:image_id>/', views.image_detail, name='image_detail'),
     path('profile/', views.profile, name='profile'),
     path('profile/edit/', views.profile_edit, name='profile_edit'),
