@@ -5,12 +5,72 @@ from django.contrib.auth.forms import UserCreationForm
 import json
 
 class ImageUploadForm(forms.ModelForm):
-    categories = forms.ModelMultipleChoiceField(queryset=Category.objects.all(), required=False)
-    tags = forms.ModelMultipleChoiceField(queryset=Tag.objects.all(), required=False)
-    
+    tags = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'Enter tags separated by commas.'}),
+    )
+    categories = forms.ModelMultipleChoiceField(
+        queryset=Category.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        help_text="Select categories."
+    )
+
     class Meta:
         model = Image
-        fields = ['title', 'description', 'image_file', 'categories', 'tags', 'privacy']
+        fields = ['title', 'description', 'image_file', 'categories', 'alt_text', 'privacy']
+
+    def save(self, user=None, commit=True):
+        instance = super(ImageUploadForm, self).save(commit=False)
+        if user:
+            instance.user = user
+        tags = self.cleaned_data['tags']
+        if commit:
+            instance.save() 
+            for tag_name in tags.split(','):
+                tag_name = tag_name.strip()
+                if tag_name:
+                    tag, created = Tag.objects.get_or_create(name=tag_name)
+                    instance.tags.add(tag)
+            instance.save()
+        return instance
+
+class ImageUpdateForm(forms.ModelForm):
+    tags = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'Enter tags separated by commas.'}),
+    )
+    tags_to_remove = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput(),
+    )
+    categories = forms.ModelMultipleChoiceField(
+        queryset=Category.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        help_text="Select categories."
+    )
+
+    class Meta:
+        model = Image
+        fields = ['title', 'description', 'image_file', 'categories', 'alt_text', 'privacy']
+
+    def save(self, commit=True):
+        instance = super(ImageUpdateForm, self).save(commit=False)
+        tags = self.cleaned_data['tags']
+        tags_to_remove = self.cleaned_data['tags_to_remove']
+        if commit:
+            instance.save()  # Save the instance first to ensure it has a primary key
+            existing_tags = instance.tags.all()
+            all_tags = tags.split(',') + [tag.name for tag in existing_tags]
+            instance.tags.clear()
+            for tag_name in all_tags:
+                tag_name = tag_name.strip()
+                if tag_name and tag_name not in tags_to_remove.split(','):
+                    tag, created = Tag.objects.get_or_create(name=tag_name)
+                    instance.tags.add(tag)
+            instance.save()  # Ensure the many-to-many relationship is saved
+        return instance
 
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField()

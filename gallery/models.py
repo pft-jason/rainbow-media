@@ -176,9 +176,8 @@ class Image(models.Model):
     views = models.PositiveIntegerField(default=0)
     is_public = models.BooleanField(default=True)
     categories = models.ManyToManyField(Category, related_name='images', blank=True)
-    tags = models.ManyToManyField(Tag, blank=True, related_name='images', through='ImageTag')
+    tags = models.ManyToManyField(Tag, related_name='images', blank=True)
     popularity_score = models.FloatField(default=0.0)
-
     objects = CustomImageManager()
     privacy = models.CharField(max_length=20, choices=[('public', 'Public'), ('users', 'Site Members Only'), ('followers', 'Followers Only'), ('private', 'Private')], default='public')
 
@@ -202,16 +201,6 @@ class Image(models.Model):
 
     def __str__(self):
         return self.title
-
-
-class ImageTag(models.Model):
-    """Represents a many-to-many relationship between images and tags."""
-    image = models.ForeignKey(Image, on_delete=models.CASCADE)
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ('image', 'tag')
-
 
 class Comment(models.Model):
     """Represents a comment made by a user on an image."""

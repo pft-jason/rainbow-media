@@ -24,10 +24,15 @@
 <h3>Uploaded Images</h3>
 <div class="row">
     {% for image in user_images %}
-        <div class="col-md-3">
+        <div class="col-md-3 position-relative">
             <a href="{% url 'image_detail' image.id %}">
-                <img src="{{ image.image_file.url }}" alt="{{ image.title }}" class="img-thumbnail" style="width: 100%;">
+                <img src="{{ image.image_file.url }}" alt="{{ image.alt_text|default:image.description|default:image.title }}" class="img-thumbnail" style="width: 100%;">
             </a>
+            {% if image.user == user %}
+                <a href="{% url 'update_image' image.id %}" class="position-absolute" style="top: 10px; right: 10px; color: white;">
+                    <i class="fas fa-edit" style="font-size: 24px;"></i>
+                </a>
+            {% endif %}
         </div>
     {% endfor %}
 </div>

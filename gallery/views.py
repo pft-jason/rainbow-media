@@ -1,6 +1,6 @@
 # views.py
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import ImageUploadForm, UserRegistrationForm, UserProfileForm
+from .forms import ImageUploadForm, UserRegistrationForm, UserProfileForm, ImageUpdateForm
 from django.contrib.auth.decorators import login_required
 from .models import Image, get_image_visibility, UserProfile
 from django.core.exceptions import PermissionDenied
@@ -17,18 +17,25 @@ def upload_image(request):
     if request.method == 'POST':
         form = ImageUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            # Save the image with the current user as the owner
-            image = form.save(commit=False)
-            image.user = request.user
-            image.save()
-            return redirect('gallery')  # Redirect to the gallery page after upload
+            form.save(user=request.user, commit=True)        
+            return redirect('gallery')
         else:
-            # Handle invalid form
             return render(request, 'upload_image.html', {'form': form, 'error': 'There was an error with your upload.'})
     else:
         form = ImageUploadForm()
-
     return render(request, 'upload_image.html', {'form': form})
+
+@login_required
+def update_image(request, image_id):
+    image = get_object_or_404(Image, id=image_id, user=request.user)
+    if request.method == 'POST':
+        form = ImageUpdateForm(request.POST, request.FILES, instance=image)
+        if form.is_valid():
+            form.save(commit=True)
+            return redirect('image_detail', image_id=image.id)
+    else:
+        form = ImageUpdateForm(instance=image)
+    return render(request, 'update_image.html', {'form': form, 'image': image})
 
 @login_required
 def profile(request):
