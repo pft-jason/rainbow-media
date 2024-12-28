@@ -6,6 +6,13 @@
 <h2>{{ user_profile.user.username }}'s Profile</h2>
 <img src="{{ user_profile.profile_picture.url }}" alt="Profile Picture" class="img-thumbnail" style="max-width: 200px;">
 <p><strong>Bio:</strong> {{ user_profile.bio }}</p>
-<p><strong>Social Links:</strong> {{ user_profile.social_links }}</p>
+<p><strong>Social Links:</strong></p>
+<ul>
+    {% for key, value in user_profile.social_links.items %}
+        {% if value %}
+            <li><strong>{{ key }}:</strong> <a href="{{ value }}" target="_blank">{{ value }}</a></li>
+        {% endif %}
+    {% endfor %}
+</ul>
 <a href="{% url 'profile_edit' %}" class="btn btn-primary">Edit Profile</a>
 {% endblock %}
