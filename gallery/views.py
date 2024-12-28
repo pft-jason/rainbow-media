@@ -1,8 +1,8 @@
 # views.py
-from django.shortcuts import render, redirect
-from .forms import ImageUploadForm, UserRegistrationForm
+from django.shortcuts import render, redirect, get_object_or_404
+from .forms import ImageUploadForm, UserRegistrationForm, UserProfileForm
 from django.contrib.auth.decorators import login_required
-from .models import Image, get_image_visibility
+from .models import Image, get_image_visibility, UserProfile
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.core.paginator import Paginator
@@ -26,6 +26,23 @@ def upload_image(request):
         form = ImageUploadForm()
 
     return render(request, 'upload_image.html', {'form': form})
+
+@login_required
+def profile(request):
+    user_profile = get_object_or_404(UserProfile, user=request.user)
+    return render(request, 'profile.html', {'user_profile': user_profile})
+
+@login_required
+def profile_edit(request):
+    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')
+    else:
+        form = UserProfileForm(instance=user_profile)
+    return render(request, 'profile_edit.html', {'form': form})
 
 def register(request):
     if request.method == 'POST':
