@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ImageUploadForm, UserRegistrationForm, UserProfileForm, ImageUpdateForm
 from django.contrib.auth.decorators import login_required
-from .models import Image, get_image_visibility, UserProfile
+from .models import Image, get_image_visibility, UserProfile, search_images
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.core.paginator import Paginator
@@ -10,7 +10,13 @@ from django.contrib.auth import login
 from django.contrib.auth.models import User
 import json
 
-
+def search(request):
+    query = request.GET.get('q')
+    if query:
+        images = search_images(query, user=request.user)
+    else:
+        images = Image.objects.get_filtered_images(user=request.user)
+    return render(request, 'search_results.html', {'images': images, 'query': query})
 
 @login_required
 def upload_image(request):
@@ -85,6 +91,7 @@ def user_gallery(request, username):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return render(request, 'user_gallery.html', {'page_obj': page_obj, 'user': user})
+    
 def image_detail(request, image_id):
     try:
         image = Image.objects.get(id=image_id)

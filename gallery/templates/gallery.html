@@ -4,6 +4,12 @@
 
 {% block content %}
 <h1>Gallery</h1>
+
+<form method="get" action="{% url 'search' %}">
+    <input type="text" name="q" placeholder="Search images...">
+    <button type="submit">Search</button>
+</form>
+
 <ul class="list-unstyled">
     {% for image in page_obj %}
         <li class="media mb-4">

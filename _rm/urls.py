@@ -17,6 +17,7 @@ urlpatterns = [
     path('profile/edit/', views.profile_edit, name='profile_edit'),
     path('user/<str:username>/gallery/', views.user_gallery, name='user_gallery'),
     path('image/<int:image_id>/update/', views.update_image, name='update_image'), 
+    path('search/', views.search, name='search'),
 ]
 
 if settings.DEBUG:

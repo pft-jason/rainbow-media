@@ -9,16 +9,16 @@ class ImageUploadForm(forms.ModelForm):
         required=False,
         widget=forms.TextInput(attrs={'placeholder': 'Enter tags separated by commas.'}),
     )
-    categories = forms.ModelMultipleChoiceField(
+    category = forms.ModelChoiceField(
         queryset=Category.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
+        widget=forms.Select,
         required=False,
-        help_text="Select categories."
+        help_text="Select a category."
     )
 
     class Meta:
         model = Image
-        fields = ['title', 'description', 'image_file', 'categories', 'alt_text', 'privacy']
+        fields = ['title', 'description', 'image_file', 'category', 'alt_text', 'privacy']
 
     def save(self, user=None, commit=True):
         instance = super(ImageUploadForm, self).save(commit=False)
@@ -44,16 +44,16 @@ class ImageUpdateForm(forms.ModelForm):
         required=False,
         widget=forms.HiddenInput(),
     )
-    categories = forms.ModelMultipleChoiceField(
+    category = forms.ModelMultipleChoiceField(
         queryset=Category.objects.all(),
         widget=forms.CheckboxSelectMultiple,
         required=False,
-        help_text="Select categories."
+        help_text="Select category."
     )
 
     class Meta:
         model = Image
-        fields = ['title', 'description', 'image_file', 'categories', 'alt_text', 'privacy']
+        fields = ['title', 'description', 'image_file', 'category', 'alt_text', 'privacy']
 
     def save(self, commit=True):
         instance = super(ImageUpdateForm, self).save(commit=False)

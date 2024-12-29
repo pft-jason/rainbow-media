@@ -75,14 +75,14 @@ def get_image_visibility(user, image):
     return True
 
 
-def search_images(query):
+def search_images(query, user=None):
     """Search for images based on title, description, tags, or categories."""
-    return Image.objects.filter(
+    return Image.objects.get_filtered_images(user).filter(
         Q(title__icontains=query) |
         Q(description__icontains=query) |
         Q(tags__name__icontains=query) |
-        Q(categories__name__icontains=query)
-    )
+        Q(category__name__icontains=query)
+    ).distinct()
 
 
 def check_spam(content):
@@ -175,7 +175,7 @@ class Image(models.Model):
     uploaded_at = models.DateTimeField(default=now)
     views = models.PositiveIntegerField(default=0)
     is_public = models.BooleanField(default=True)
-    categories = models.ManyToManyField(Category, related_name='images', blank=True)
+    category = models.ForeignKey(Category, related_name='images', on_delete=models.CASCADE, blank=True, null=True)
     tags = models.ManyToManyField(Tag, related_name='images', blank=True)
     popularity_score = models.FloatField(default=0.0)
     objects = CustomImageManager()
