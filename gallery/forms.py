@@ -1,5 +1,5 @@
 from django import forms 
-from .models import Image, Category, Tag, UserProfile
+from .models import Image, Category, Tag, UserProfile, Comment
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 import json
@@ -109,3 +109,8 @@ class UserProfileForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['content']

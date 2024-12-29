@@ -29,10 +29,9 @@ class CustomImageManager(models.Manager):
                 Q(privacy="public") |
                 Q(privacy="followers", user__followers__follower=user) |
                 Q(privacy="private", user=user)
-            )
-        
-        # If user is not authenticated, only show public images
-        return images.filter(privacy="public")
+            ).distinct()
+        else:
+            return images.filter(privacy="public").distinct()
 
 
 # ----------------------------------------------------------------------------- 

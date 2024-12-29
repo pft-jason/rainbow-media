@@ -14,6 +14,20 @@
     {% for image in page_obj %}
         <li class="media mb-4">
             <img src="{{ image.image_file.url }}" class="mr-3" alt="{{ image.title }}" style="width: 100px; height: auto;">
+            <div class="d-flex justify-content-around mt-2">
+                <a href="{% url 'like_image' image.id %}" class="text-success">
+                    <i class="fas fa-thumbs-up" style="font-size: 24px;"></i>
+                </a>
+                <a href="{% url 'dislike_image' image.id %}" class="text-danger">
+                    <i class="fas fa-thumbs-down" style="font-size: 24px;"></i>
+                </a>
+                <a href="{% url 'download_image' image.id %}" class="text-primary">
+                    <i class="fas fa-download" style="font-size: 24px;"></i>
+                </a>
+                <a href="{% url 'favorite_image' image.id %}" class="text-warning">
+                    <i class="fas fa-star" style="font-size: 24px;"></i>
+                </a>
+            </div>
             <div class="media-body">
                 <h5 class="mt-0 mb-1"><a href="{% url 'image_detail' image.id %}">{{ image.title }}</a></h5>
                 {{ image.description }}

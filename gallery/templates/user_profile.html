@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block title %}My Profile{% endblock %}
+{% block title %}Profile{% endblock %}
 
 {% block content %}
 <h2>{{ user_profile.user.username }}'s Profile</h2>
@@ -11,6 +11,15 @@
 {% else %}
     <img src="{% static 'img/placeholder.png' %}" alt="Default Profile Picture" class="img-thumbnail" style="max-width: 200px;">
 {% endif %}
+
+<form method="post" action="{% url 'follow_user' user_profile.user.id %}">
+    {% csrf_token %}
+    {% if is_following %}
+        <button type="submit" class="btn btn-danger">Unfollow</button>
+    {% else %}
+        <button type="submit" class="btn btn-primary">Follow</button>
+    {% endif %}
+</form>
 
 <p><strong>Bio:</strong> {{ user_profile.bio }}</p>
 <p><strong>Social Links:</strong></p>
@@ -29,9 +38,11 @@
             <a href="{% url 'image_detail' image.id %}">
                 <img src="{{ image.image_file.url }}" alt="{{ image.alt_text|default:image.description|default:image.title }}" class="img-thumbnail" style="width: 100%;">
             </a>
-            <a href="{% url 'update_image' image.id %}" class="position-absolute" style="top: 10px; right: 10px; color: white;">
-                <i class="fas fa-edit" style="font-size: 24px;"></i>
-            </a>
+            {% if image.user == user %}
+                <a href="{% url 'update_image' image.id %}" class="position-absolute" style="top: 10px; right: 10px; color: white;">
+                    <i class="fas fa-edit" style="font-size: 24px;"></i>
+                </a>
+            {% endif %}
         </div>
     {% endfor %}
 </div>

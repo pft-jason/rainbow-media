@@ -18,6 +18,15 @@ urlpatterns = [
     path('user/<str:username>/gallery/', views.user_gallery, name='user_gallery'),
     path('image/<int:image_id>/update/', views.update_image, name='update_image'), 
     path('search/', views.search, name='search'),
+    path('image/<int:image_id>/like/', views.like_image, name='like_image'),
+    path('image/<int:image_id>/dislike/', views.dislike_image, name='dislike_image'),
+    path('image/<int:image_id>/download/', views.download_image, name='download_image'),
+    path('image/<int:image_id>/favorite/', views.favorite_image, name='favorite_image'),
+    path('image/<int:image_id>/comment/', views.submit_comment, name='submit_comment'),
+    path('comment/<int:comment_id>/<str:action>/', views.moderate_comment, name='moderate_comment'),
+    
+    path('user/<str:username>/', views.user_profile, name='user_profile'),  # New URL pattern
+    path('user/<int:user_id>/follow/', views.follow_user, name='follow_user'),
 ]
 
 if settings.DEBUG:
