@@ -24,7 +24,7 @@ urlpatterns = [
     path('image/<int:image_id>/favorite/', views.favorite_image, name='favorite_image'),
     path('image/<int:image_id>/comment/', views.submit_comment, name='submit_comment'),
     path('comment/<int:comment_id>/<str:action>/', views.moderate_comment, name='moderate_comment'),
-    
+    path('album/<int:album_id>/', views.album_detail, name='album_detail'),
     path('user/<str:username>/', views.user_profile, name='user_profile'),  # New URL pattern
     path('user/<int:user_id>/follow/', views.follow_user, name='follow_user'),
 ]

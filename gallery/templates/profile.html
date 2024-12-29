@@ -36,4 +36,11 @@
     {% endfor %}
 </div>
 <a href="{% url 'user_gallery' user_profile.user.username %}" class="btn btn-primary mt-3">View All Images</a>
+
+<h3>Albums</h3>
+<ul>
+    {% for album in user_albums %}
+        <li><a href="{% url 'album_detail' album.id %}">{{ album.name }}</a></li>
+    {% endfor %}
+</ul>
 {% endblock %}

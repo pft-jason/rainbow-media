@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}{{ album.name }}{% endblock %}
+
+{% block content %}
+<h2>{{ album.name }}</h2>
+
+<div class="row">
+    {% for image in album.images.all %}
+        <div class="col-md-3 position-relative">
+            <a href="{% url 'image_detail' image.id %}">
+                <img src="{{ image.image_file.url }}" alt="{{ image.alt_text|default:image.description|default:image.title }}" class="img-thumbnail" style="width: 100%;">
+            </a>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

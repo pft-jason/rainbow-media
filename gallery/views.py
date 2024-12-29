@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ImageUploadForm, UserRegistrationForm, UserProfileForm, ImageUpdateForm, CommentForm
 from django.contrib.auth.decorators import login_required
-from .models import Follow, Image, get_image_visibility, UserProfile, search_images, Like, Dislike, Favorite, Comment, ModerationStatus
+from .models import Album, Follow, Image, get_image_visibility, UserProfile, search_images, Like, Dislike, Favorite, Comment, ModerationStatus, remove_from_favorites, add_to_favorites
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.core.paginator import Paginator
@@ -47,17 +47,20 @@ def update_image(request, image_id):
 def profile(request):
     user_profile, created = UserProfile.objects.get_or_create(user=request.user)
     user_images = Image.objects.filter(user=request.user) [:8]  # Display the latest 8 images
-    return render(request, 'profile.html', {'user_profile': user_profile, 'user_images': user_images, 'is_following': False})
+    user_albums = Album.objects.filter(user=request.user) 
+    return render(request, 'profile.html', {'user_profile': user_profile, 'user_images': user_images, 'user_albums': user_albums, 'is_following': False})
 
 @login_required
 def user_profile(request, username):
     user_profile = get_object_or_404(UserProfile, user__username=username)
-    user_images = Image.objects.get_filtered_images(user_profile.user)[:8]  # Display the latest 8 images
+    user_images = Image.objects.get_filtered_images(user_profile.user).filter(user=user_profile.user).order_by('-uploaded_at')[:8] 
+    user_albums = Album.objects.filter(user=user_profile.user) 
     is_following = Follow.objects.filter(follower=request.user, followed=user_profile.user).exists()
     
     return render(request, 'user_profile.html', {
         'user_profile': user_profile,
         'user_images': user_images,
+        'user_albums': user_albums,
         'is_following': is_following,
     })
 
@@ -126,6 +129,11 @@ def image_detail(request, image_id):
     comments = image.comments.filter(moderation_status=ModerationStatus.APPROVED)
     return render(request, 'image_detail.html', {'image': image, 'comment_form': comment_form, 'comments': comments})
 
+@login_required
+def album_detail(request, album_id):
+    album = get_object_or_404(Album, id=album_id)
+    return render(request, 'album_detail.html', {'album': album})
+
 def like_image(request, image_id):
     image = get_object_or_404(Image, id=image_id)
     like, created = Like.objects.get_or_create(user=request.user, image=image)
@@ -156,11 +164,14 @@ def download_image(request, image_id):
     response['Content-Disposition'] = f'attachment; filename="{image.image_file.name}"'
     return response
 
+@login_required
 def favorite_image(request, image_id):
     image = get_object_or_404(Image, id=image_id)
     favorite, created = Favorite.objects.get_or_create(user=request.user, image=image)
-    if not created:
-        favorite.delete()
+    if created:
+        add_to_favorites(request.user, image)
+    else:
+        remove_from_favorites(request.user, image)
     return redirect('image_detail', image_id=image.id)
 
 @login_required
