@@ -31,6 +31,7 @@ urlpatterns = [
     path('albums/<str:username>/', views.user_albums, name='user_albums'),
     path('album/create/', views.create_album, name='create_album'),
     path('save_image_order/<int:album_id>/', views.save_image_order, name='save_image_order'),
+    path('admin_page/', views.admin_page, name='admin_page'),  # Add this line
 ]
 
 if settings.DEBUG:

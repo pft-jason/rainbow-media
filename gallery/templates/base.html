@@ -26,11 +26,15 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'profile' %}">Profile</a>
                     </li>
+                {% endif %}
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                        <form id="logout-form" method="post" action="{% url 'logout' %}" style="display: none;">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-link nav-link" style="padding: .5rem 1rem; border: none; cursor: pointer;">Logout</button>
                         </form>
+                        <a class="nav-link" href="#" onclick="document.getElementById('logout-form').submit();">Logout</a>
                     </li>
                 {% else %}
                     <li class="nav-item">
@@ -40,7 +44,11 @@
                         <a class="nav-link" href="{% url 'register' %}">Register</a>
                     </li>
                 {% endif %}
-                <!-- Add more navigation links here -->
+                {% if user.is_authenticated and user.is_staff %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'admin_page' %}" style="color: red;">Admin Page</a>
+                </li>
+                {% endif %}
             </ul>
         </div>
     </nav>

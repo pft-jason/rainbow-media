@@ -10,7 +10,12 @@ from django.contrib.auth import login
 from django.contrib.auth.models import User
 import json
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import user_passes_test
 
+@user_passes_test(lambda u: u.is_staff)
+def admin_page(request):
+    return render(request, 'admin_page.html')
+    
 def search(request):
     query = request.GET.get('q')
     if query:
