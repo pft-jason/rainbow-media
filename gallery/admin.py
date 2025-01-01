@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import UserProfile, Image, Tag, Category, Report, Comment, Like, Dislike, Favorite, Album
+from .models import AlbumImage, UserProfile, Image, Tag, Category, Report, Comment, Like, Dislike, Favorite, Album
 
 class ImageAdmin(admin.ModelAdmin):
     list_display = ('title', 'user', 'uploaded_at', 'moderation_status')  # Add fields to list view
@@ -17,3 +17,4 @@ admin.site.register(Like)
 admin.site.register(Dislike)
 admin.site.register(Favorite)
 admin.site.register(Album)
+admin.site.register(AlbumImage)

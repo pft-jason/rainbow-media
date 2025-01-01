@@ -18,6 +18,7 @@ urlpatterns = [
     path('user/<str:username>/gallery/', views.user_gallery, name='user_gallery'),
     path('image/<int:image_id>/update/', views.update_image, name='update_image'), 
     path('search/', views.search, name='search'),
+    path('image/<int:image_id>/add_to_album/', views.add_to_album, name='add_to_album'),
     path('image/<int:image_id>/like/', views.like_image, name='like_image'),
     path('image/<int:image_id>/dislike/', views.dislike_image, name='dislike_image'),
     path('image/<int:image_id>/download/', views.download_image, name='download_image'),

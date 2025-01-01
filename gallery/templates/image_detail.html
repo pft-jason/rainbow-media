@@ -13,15 +13,31 @@
     <p>Uploaded by: <a href="{% url 'user_profile' image.user.username %}">{{ image.user.username }}</a></p>
 {% endif %}
 
+{% if user.is_authenticated %}
+    <h3>Add to Album</h3>
+    <form method="post" action="{% url 'add_to_album' image.id %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="album_id">Select Album</label>
+            <select name="album_id" id="album_id" class="form-control">
+                {% for album in user_albums %}
+                    <option value="{{ album.id }}">{{ album.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Add to Album</button>
+    </form>
+{% endif %}
+
 <h3>Comments</h3>
 {% for comment in comments %}
     <p>{{ comment.user.username }}: {{ comment.content }}</p>
 {% endfor %}
 
 <h3>Submit a Comment</h3>
-<form method="post">
+<form method="post" action="{% url 'submit_comment' image.id %}">
     {% csrf_token %}
     {{ comment_form.as_p }}
-    <button type="submit">Submit</button>
+    <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 {% endblock %}

@@ -443,3 +443,8 @@ def handle_comment_moderation(comment):
         comment.save()  # Can trigger other actions
     elif comment.moderation_status == ModerationStatus.REJECTED:
         comment.delete()
+
+def add_image_to_album(user, image, album_id):
+    """Adds an image to the specified album."""
+    album = Album.objects.get(id=album_id, user=user)
+    album.images.add(image)

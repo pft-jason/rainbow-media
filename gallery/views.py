@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ImageUploadForm, UserRegistrationForm, UserProfileForm, ImageUpdateForm, CommentForm
 from django.contrib.auth.decorators import login_required
-from .models import Album, Follow, Image, get_image_visibility, UserProfile, search_images, Like, Dislike, Favorite, Comment, ModerationStatus, remove_from_favorites, add_to_favorites
+from .models import add_image_to_album, Album, Follow, Image, get_image_visibility, UserProfile, search_images, Like, Dislike, Favorite, Comment, ModerationStatus, remove_from_favorites, add_to_favorites
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.core.paginator import Paginator
@@ -120,28 +120,26 @@ def create_album(request):
         album = Album.objects.create(user=request.user, name=name)
         return redirect('profile')
     return render(request, 'create_album.html')
-    
+
+@login_required
 def image_detail(request, image_id):
     image = get_object_or_404(Image, id=image_id)
-
 
     if not request.user.is_staff:
         if not get_image_visibility(request.user, image):
             raise PermissionDenied("You do not have permission to view this image.")
     
-    if request.method == 'POST':
-        comment_form = CommentForm(request.POST)
-        if comment_form.is_valid():
-            comment = comment_form.save(commit=False)
-            comment.user = request.user
-            comment.image = image
-            comment.save()
-            return redirect('image_detail', image_id=image.id)
-    else:
-        comment_form = CommentForm()
-
-    comments = image.comments.filter(moderation_status=ModerationStatus.APPROVED)
-    return render(request, 'image_detail.html', {'image': image, 'comment_form': comment_form, 'comments': comments})
+    comment_form = CommentForm()
+    user_albums = Album.objects.filter(user=request.user)
+    # TODO: set up so user can select whether comments on their images are moderated or not.
+    # comments = image.comments.filter(moderation_status=ModerationStatus.APPROVED)
+    comments = image.comments.all()
+    return render(request, 'image_detail.html', {
+        'image': image,
+        'comment_form': comment_form,
+        'user_albums': user_albums,
+        'comments': comments,
+    })
 
 @login_required
 def album_detail(request, album_id):
@@ -199,8 +197,6 @@ def submit_comment(request, image_id):
             comment.image = image
             comment.save()
             return redirect('image_detail', image_id=image.id)
-    else:
-        form = CommentForm()
     return render(request, 'submit_comment.html', {'form': form, 'image': image})
 
 @login_required
@@ -221,3 +217,23 @@ def follow_user(request, user_id):
         # If the follow relationship already exists, remove it (unfollow)
         follow.delete()
     return redirect('user_profile', username=user_to_follow.username)
+
+@login_required
+def add_to_album(request, image_id):
+    image = get_object_or_404(Image, id=image_id)
+    if request.method == 'POST':
+        album_id = request.POST.get('album_id')
+        if album_id:
+            album = Album.objects.get(id=album_id, user=request.user)
+            if album.name == "Favorites":
+                print("Adding to favorites")
+                add_to_favorites(request.user, image)
+            else:
+                add_image_to_album(request.user, image, album_id)
+            return redirect('image_detail', image_id=image.id)
+    return redirect('image_detail', image_id=image.id)
+
+def add_image_to_album(user, image, album_id):
+    """Adds an image to the specified album."""
+    album = Album.objects.get(id=album_id, user=user)
+    album.images.add(image)
