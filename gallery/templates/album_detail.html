@@ -5,13 +5,51 @@
 {% block content %}
 <h2>{{ album.name }}</h2>
 
-<div class="row">
-    {% for image in album.images.all %}
-        <div class="col-md-3 position-relative">
-            <a href="{% url 'image_detail' image.id %}">
-                <img src="{{ image.image_file.url }}" alt="{{ image.alt_text|default:image.description|default:image.title }}" class="img-thumbnail" style="width: 100%;">
+<div class="row" id="sortable">
+    {% for album_image in album.albumimage_set.all %}
+        <div class="col-md-3 position-relative" data-id="{{ album_image.image.id }}">
+            <a href="{% url 'image_detail' album_image.image.id %}">
+                <img src="{{ album_image.image.image_file.url }}" alt="{{ album_image.image.alt_text|default:album_image.image.description|default:album_image.image.title }}" class="img-thumbnail" style="width: 100%;">
             </a>
         </div>
     {% endfor %}
 </div>
+
+<button id="saveOrder" class="btn btn-primary">Save Order</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+<script>
+    var sortable = new Sortable(document.getElementById('sortable'), {
+        animation: 150,
+        onEnd: function (/**Event*/evt) {
+            var order = [];
+            document.querySelectorAll('#sortable .col-md-3').forEach(function (element) {
+                order.push(element.getAttribute('data-id'));
+            });
+            console.log(order); // This will log the new order of image IDs
+        }
+    });
+
+    document.getElementById('saveOrder').addEventListener('click', function () {
+        var order = [];
+        document.querySelectorAll('#sortable .col-md-3').forEach(function (element) {
+            order.push(element.getAttribute('data-id'));
+        });
+
+        fetch('{% url "save_image_order" album.id %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ order: order })
+        }).then(response => {
+            if (response.ok) {
+                alert('Order saved successfully!');
+            } else {
+                alert('Failed to save order.');
+            }
+        });
+    });
+</script>
 {% endblock %}

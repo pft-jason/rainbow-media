@@ -2,13 +2,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ImageUploadForm, UserRegistrationForm, UserProfileForm, ImageUpdateForm, CommentForm
 from django.contrib.auth.decorators import login_required
-from .models import add_image_to_album, Album, Follow, Image, get_image_visibility, UserProfile, search_images, Like, Dislike, Favorite, Comment, ModerationStatus, remove_from_favorites, add_to_favorites
+from .models import AlbumImage, add_image_to_album, Album, Follow, Image, get_image_visibility, UserProfile, search_images, Like, Dislike, Favorite, Comment, ModerationStatus, remove_from_favorites, add_to_favorites
 from django.core.exceptions import PermissionDenied
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.core.paginator import Paginator
 from django.contrib.auth import login
 from django.contrib.auth.models import User
 import json
+from django.views.decorators.csrf import csrf_exempt
 
 def search(request):
     query = request.GET.get('q')
@@ -53,7 +54,8 @@ def profile(request):
 @login_required
 def user_profile(request, username):
     user_profile = get_object_or_404(UserProfile, user__username=username)
-    user_images = Image.objects.get_filtered_images(user_profile.user).filter(user=user_profile.user).order_by('-uploaded_at')[:8] 
+    user_images = Image.objects.filter(user=user_profile.user)
+    user_images = Image.objects.get_filtered_images(user=request.user).filter(id__in=user_images).order_by('-uploaded_at')[:8]
     user_albums = Album.objects.filter(user=user_profile.user) 
     is_following = Follow.objects.filter(follower=request.user, followed=user_profile.user).exists()
     
@@ -237,3 +239,16 @@ def add_image_to_album(user, image, album_id):
     """Adds an image to the specified album."""
     album = Album.objects.get(id=album_id, user=user)
     album.images.add(image)
+
+@csrf_exempt
+def save_image_order(request, album_id):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        order = data.get('order', [])
+        album = Album.objects.get(id=album_id)
+        for index, image_id in enumerate(order):
+            album_image = AlbumImage.objects.get(album=album, image_id=image_id)
+            album_image.order = index
+            album_image.save()
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'fail'}, status=400)

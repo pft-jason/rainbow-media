@@ -47,7 +47,9 @@
 </h3>
 <ul>
     {% for album in user_albums %}
-        <li><a href="{% url 'album_detail' album.id %}">{{ album.name }}</a></li>
+    <li><a href="{% url 'album_detail' album.id %}">{{ album.name }}</a></li>
+    {% empty %}
+        <li>User has no albums.</li>
     {% endfor %}
 </ul>
 {% endblock %}

@@ -30,6 +30,7 @@ urlpatterns = [
     path('user/<int:user_id>/follow/', views.follow_user, name='follow_user'),
     path('albums/<str:username>/', views.user_albums, name='user_albums'),
     path('album/create/', views.create_album, name='create_album'),
+    path('save_image_order/<int:album_id>/', views.save_image_order, name='save_image_order'),
 ]
 
 if settings.DEBUG:

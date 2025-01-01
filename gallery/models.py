@@ -27,6 +27,7 @@ class CustomImageManager(models.Manager):
         if user.is_authenticated:
             return images.filter(
                 Q(privacy="public") |
+                Q(privacy="users") |
                 Q(privacy="followers", user__followers__follower=user) |
                 Q(privacy="private", user=user)
             ).distinct()
@@ -69,7 +70,9 @@ def get_image_visibility(user, image):
     """Check if the user can view the image based on privacy settings."""
     if image.privacy == 'private' and image.user != user:
         raise PermissionDenied("You do not have permission to view this image.")
-    elif image.privacy == 'followers' and user not in image.user.followers.all():
+    elif image.privacy == 'followers' and not Follow.objects.filter(follower=user, followed=image.user).exists():
+        raise PermissionDenied("You do not have permission to view this image.")
+    elif image.privacy == 'users' and not user.is_authenticated:
         raise PermissionDenied("You do not have permission to view this image.")
     return True
 
@@ -275,9 +278,11 @@ class AlbumImage(models.Model):
     """Represents a relationship between an album and an image."""
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
     image = models.ForeignKey(Image, on_delete=models.CASCADE)
+    order = models.PositiveIntegerField(default=0)
 
     class Meta:
         unique_together = ('album', 'image')
+        ordering = ['order']
 
 
 class Follow(models.Model):

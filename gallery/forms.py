@@ -44,11 +44,11 @@ class ImageUpdateForm(forms.ModelForm):
         required=False,
         widget=forms.HiddenInput(),
     )
-    category = forms.ModelMultipleChoiceField(
+    category = forms.ModelChoiceField(
         queryset=Category.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
+        widget=forms.Select,
         required=False,
-        help_text="Select category."
+        help_text="Select a category."
     )
 
     class Meta:
