@@ -106,6 +106,20 @@ def user_gallery(request, username):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return render(request, 'user_gallery.html', {'page_obj': page_obj, 'user': user})
+
+@login_required
+def user_albums(request, username):
+    user_profile = get_object_or_404(UserProfile, user__username=username)
+    user_albums = Album.objects.filter(user=user_profile.user)
+    return render(request, 'user_albums.html', {'user_profile': user_profile, 'user_albums': user_albums})
+    
+@login_required
+def create_album(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        album = Album.objects.create(user=request.user, name=name)
+        return redirect('profile')
+    return render(request, 'create_album.html')
     
 def image_detail(request, image_id):
     image = get_object_or_404(Image, id=image_id)

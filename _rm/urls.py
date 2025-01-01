@@ -11,7 +11,7 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('admin/', admin.site.urls),
     path('upload/', views.upload_image, name='upload_image'),
-    path('gallery/', views.gallery, name='gallery'),
+    path('', views.gallery, name='gallery'),
     path('image/<int:image_id>/', views.image_detail, name='image_detail'),
     path('profile/', views.profile, name='profile'),
     path('profile/edit/', views.profile_edit, name='profile_edit'),
@@ -27,6 +27,8 @@ urlpatterns = [
     path('album/<int:album_id>/', views.album_detail, name='album_detail'),
     path('user/<str:username>/', views.user_profile, name='user_profile'),  # New URL pattern
     path('user/<int:user_id>/follow/', views.follow_user, name='follow_user'),
+    path('albums/<str:username>/', views.user_albums, name='user_albums'),
+    path('album/create/', views.create_album, name='create_album'),
 ]
 
 if settings.DEBUG:

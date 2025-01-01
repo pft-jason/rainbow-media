@@ -31,7 +31,10 @@
     {% endfor %}
 </ul>
 
-<h3>Uploaded Images</h3>
+<h3>
+    Uploaded Images
+    <a href="{% url 'user_gallery' user_profile.user.username %}" class="btn btn-primary btn-sm ml-2">View All Images</a>
+</h3>
 <div class="row">
     {% for image in user_images %}
         <div class="col-md-3 position-relative">
@@ -46,9 +49,11 @@
         </div>
     {% endfor %}
 </div>
-<a href="{% url 'user_gallery' user_profile.user.username %}" class="btn btn-primary mt-3">View All Images</a>
 
-<h3>Albums</h3>
+<h3>
+    Albums
+    <a href="{% url 'user_albums' user_profile.user.username %}" class="btn btn-primary btn-sm ml-2">View All Albums</a>
+</h3>
 <ul>
     {% for album in user_albums %}
         <li><a href="{% url 'album_detail' album.id %}">{{ album.name }}</a></li>
