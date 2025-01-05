@@ -42,6 +42,7 @@ urlpatterns = [
     
 
     path('admin/pending-images/approve/<int:image_id>/', views.admin_approve_image, name='admin_approve_image'),
+    path('admin/reported-images/', views.admin_reported_images, name='admin_reported_images'),
     path('admin/', admin.site.urls),
     
 ]

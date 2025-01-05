@@ -4,5 +4,22 @@
 
 {% block content %}
 <h2>Reported Images</h2>
-<p>List of reported images will be displayed here.</p>
+<ul>
+    {% for image in reported_images %}
+        <li>
+            <img src="{{ image.image_file.url }}" alt="{{ image.title }}" width="100">
+            <p>{{ image.title }}</p>
+            {% for report in image.report_set.all %}
+                <p>Reported by: {{ report.reported_by.username }}</p>
+                <p>Report type: {{ report.report_type }}</p>
+                <p>Description: {{ report.description }}</p>
+            {% endfor %}
+            <a href="{% url 'update_image' image.id %}" class="btn btn-primary">Edit</a>
+            <a href="{% url 'admin_approve_image' image.id %}" class="btn btn-success">Approve</a>
+            <a href="{% url 'admin_delete_image' image.id %}" class="btn btn-danger">Delete</a>
+        </li>
+    {% empty %}
+        <li>No reported images.</li>
+    {% endfor %}
+</ul>
 {% endblock %}

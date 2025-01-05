@@ -12,8 +12,13 @@
 
 <ul class="list-unstyled">
     {% for image in page_obj %}
-        <li class="media mb-4">
-            <img src="{{ image.image_file.url }}" class="mr-3" alt="{{ image.title }}" style="width: 100px; height: auto;">
+        <li class="media mb-4 position-relative">
+            <div class="image-container {% if image.moderation_status == 'PENDING' and user.is_staff %}pending{% endif %}">
+                <img src="{{ image.image_file.url }}" class="mr-3" alt="{{ image.title }}" style="width: 100px; height: auto;">
+                {% if image.moderation_status == 'PENDING' and user.is_staff %}
+                    <span class="badge badge-warning position-absolute pending-badge">Pending</span>
+                {% endif %}
+            </div>
             <div class="d-flex justify-content-around mt-2">
                 <a href="{% url 'like_image' image.id %}" class="text-success">
                     <i class="fas fa-thumbs-up" style="font-size: 24px;"></i>
@@ -29,12 +34,29 @@
                 </a>
             </div>
             <div class="media-body">
-                <h5 class="mt-0 mb-1"><a href="{% url 'image_detail' image.id %}">{{ image.title }}</a></h5>
+                <h5 class="mt-0 mb-1">
+                    <a href="{% url 'image_detail' image.id %}">{{ image.title }}</a>
+                </h5>
                 {{ image.description }}
             </div>
         </li>
     {% endfor %}
 </ul>
+
+<style>
+    .image-container {
+        position: relative;
+        display: inline-block;
+    }
+    .pending img {
+        opacity: 0.5;
+    }
+    .pending-badge {
+        top: 10px;
+        left: 10px;
+        z-index: 1;
+    }
+</style>
 
 <!-- Pagination Controls -->
 <nav aria-label="Page navigation">

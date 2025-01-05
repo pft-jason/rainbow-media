@@ -19,7 +19,11 @@ def staff_required(view_func):
 @staff_required
 def admin_page(request):
     pending_images_count = Image.objects.filter(moderation_status=ModerationStatus.PENDING).count()
-    return render(request, 'admin_page.html', {'pending_images_count': pending_images_count})
+    reported_images_count = Image.objects.filter(report__isnull=False).distinct().count()
+    return render(request, 'admin_page.html', {
+        'pending_images_count': pending_images_count,
+        'reported_images_count': reported_images_count,
+    })
 
 @staff_required
 def admin_pending_images(request):
@@ -28,7 +32,8 @@ def admin_pending_images(request):
 
 @staff_required
 def admin_reported_images(request):
-    return render(request, 'admin_reported_images.html')
+    reported_images = Image.objects.filter(report__isnull=False).distinct()
+    return render(request, 'admin_reported_images.html', {'reported_images': reported_images})
 
 @staff_required
 def admin_reported_comments(request):

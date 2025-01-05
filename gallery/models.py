@@ -26,13 +26,13 @@ class CustomImageManager(models.Manager):
         # If user is authenticated but not staff, filter based on privacy settings
         if user.is_authenticated:
             return images.filter(
-                Q(privacy="public") |
-                Q(privacy="users") |
-                Q(privacy="followers", user__followers__follower=user) |
-                Q(privacy="private", user=user)
+                Q(privacy="public", moderation_status=ModerationStatus.APPROVED) |
+                Q(privacy="users", moderation_status=ModerationStatus.APPROVED) |
+                Q(privacy="followers", user__followers__follower=user, moderation_status=ModerationStatus.APPROVED) |
+                Q(privacy="private", user=user, moderation_status=ModerationStatus.APPROVED)
             ).distinct()
         else:
-            return images.filter(privacy="public").distinct()
+            return images.filter(privacy="public", moderation_status=ModerationStatus.APPROVED).distinct()
 
 
 # ----------------------------------------------------------------------------- 
@@ -47,23 +47,6 @@ def report_image(user, image, report_type, description=""):
         report_type=report_type,
         description=description,
     )
-
-    # Notify moderators (via email or notifications)
-    moderators = User.objects.filter(is_staff=True)
-    
-    for moderator in moderators:
-        send_mail(
-            subject=f"New Report: {report_type} for Image {image.title}",
-            message=f"Reported by {user.username}.\n\nDescription: {description}",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[moderator.email],
-        )
-        Notification.objects.create(
-            recipient=moderator,
-            message=f"New report for image {image.title} by {user.username}",
-            image=image,
-            is_read=False,
-        )
 
 
 def get_image_visibility(user, image):
