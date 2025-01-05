@@ -1,8 +1,51 @@
 {% extends "base.html" %}
 
-{% block title %}Admin Page{% endblock %}
+{% block title %}Admin Dashboard{% endblock %}
 
 {% block content %}
-<h2>Admin Page</h2>
-<p>Welcome, {{ user.username }}. This page is only accessible to staff users.</p>
+
+
+<div class="container">
+    <h2>Admin Dashboard</h2>
+    <p>Welcome, {{ user.username }}. This page is only accessible to staff users.</p>
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-md-6">
+            <div class="mb-2">
+                <a class="btn btn-primary btn-block" href="{% url 'admin_pending_images' %}">
+                    Pending Uploaded Images <span class="ml-2 badge badge-danger">5</span>
+                </a>
+            </div>
+            <div class="mb-2">
+                <a class="btn btn-primary btn-block" href="{% url 'admin_reported_images' %}">
+                    Reported Images <span class="ml-2 badge badge-danger">3</span>
+                </a>
+            </div>
+            <div class="mb-2">
+                <a class="btn btn-primary btn-block" href="{% url 'admin_reported_comments' %}">
+                    Reported Comments <span class="ml-2 badge badge-danger">7</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Right Column -->
+        <div class="col-md-6">
+            <div class="mb-2">
+                <a class="btn btn-primary btn-block" href="{% url 'admin_user_management' %}">
+                    User Management
+                </a>
+            </div>
+            <div class="mb-2">
+                <a class="btn btn-primary btn-block" href="{% url 'admin_site_statistics' %}">
+                    Site Statistics
+                </a>
+            </div>
+            <div class="mb-2">
+                <a class="btn btn-primary btn-block" href="{% url 'admin_system_logs' %}">
+                    System Logs
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

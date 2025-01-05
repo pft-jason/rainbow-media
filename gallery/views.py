@@ -12,10 +12,38 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import user_passes_test
 
-@user_passes_test(lambda u: u.is_staff)
+def staff_required(view_func):
+    decorated_view_func = user_passes_test(lambda u: u.is_staff)(view_func)
+    return decorated_view_func
+
+@staff_required
 def admin_page(request):
     return render(request, 'admin_page.html')
-    
+
+@staff_required
+def admin_pending_images(request):
+    return render(request, 'admin_pending_images.html')
+
+@staff_required
+def admin_reported_images(request):
+    return render(request, 'admin_reported_images.html')
+
+@staff_required
+def admin_reported_comments(request):
+    return render(request, 'admin_reported_comments.html')
+
+@staff_required
+def admin_user_management(request):
+    return render(request, 'admin_user_management.html')
+
+@staff_required
+def admin_site_statistics(request):
+    return render(request, 'admin_site_statistics.html')
+
+@staff_required
+def admin_system_logs(request):
+    return render(request, 'admin_system_logs.html')
+
 def search(request):
     query = request.GET.get('q')
     if query:
