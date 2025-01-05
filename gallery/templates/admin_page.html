@@ -13,7 +13,7 @@
         <div class="col-md-6">
             <div class="mb-2">
                 <a class="btn btn-primary btn-block" href="{% url 'admin_pending_images' %}">
-                    Pending Uploaded Images <span class="ml-2 badge badge-danger">5</span>
+                    Pending Uploaded Images <span class="ml-2 badge badge-danger">{{ pending_images_count }}</span>
                 </a>
             </div>
             <div class="mb-2">

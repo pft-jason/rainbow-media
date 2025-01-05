@@ -18,11 +18,13 @@ def staff_required(view_func):
 
 @staff_required
 def admin_page(request):
-    return render(request, 'admin_page.html')
+    pending_images_count = Image.objects.filter(moderation_status=ModerationStatus.PENDING).count()
+    return render(request, 'admin_page.html', {'pending_images_count': pending_images_count})
 
 @staff_required
 def admin_pending_images(request):
-    return render(request, 'admin_pending_images.html')
+    pending_images = Image.objects.filter(moderation_status=ModerationStatus.PENDING)
+    return render(request, 'admin_pending_images.html', {'pending_images': pending_images})
 
 @staff_required
 def admin_reported_images(request):
@@ -65,17 +67,25 @@ def upload_image(request):
         form = ImageUploadForm()
     return render(request, 'upload_image.html', {'form': form})
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Image
+from .forms import ImageUpdateForm
+
 @login_required
 def update_image(request, image_id):
-    image = get_object_or_404(Image, id=image_id, user=request.user)
-    if request.method == 'POST':
-        form = ImageUpdateForm(request.POST, request.FILES, instance=image)
-        if form.is_valid():
-            form.save(commit=True)
-            return redirect('image_detail', image_id=image.id)
+    image = get_object_or_404(Image, id=image_id)
+    if request.user == image.user or request.user.is_staff:
+        if request.method == 'POST':
+            form = ImageUpdateForm(request.POST, request.FILES, instance=image)
+            if form.is_valid():
+                form.save(commit=True)
+                return redirect('image_detail', image_id=image.id)
+        else:
+            form = ImageUpdateForm(instance=image)
+        return render(request, 'update_image.html', {'form': form, 'image': image})
     else:
-        form = ImageUpdateForm(instance=image)
-    return render(request, 'update_image.html', {'form': form, 'image': image})
+        return redirect('gallery')  # Redirect to a different page if the user is not authorized
 
 @login_required
 def profile(request):
@@ -285,3 +295,10 @@ def save_image_order(request, album_id):
             album_image.save()
         return JsonResponse({'status': 'success'})
     return JsonResponse({'status': 'fail'}, status=400)
+
+@staff_required
+def admin_approve_image(request, image_id):
+    image = get_object_or_404(Image, id=image_id)
+    image.moderation_status = ModerationStatus.APPROVED
+    image.save()
+    return redirect('admin_pending_images')

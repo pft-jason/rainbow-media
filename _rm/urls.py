@@ -39,6 +39,9 @@ urlpatterns = [
     path('admin/user-management/', views.admin_user_management, name='admin_user_management'),
     path('admin/site-statistics/', views.admin_site_statistics, name='admin_site_statistics'),
     path('admin/system-logs/', views.admin_system_logs, name='admin_system_logs'),
+    
+
+    path('admin/pending-images/approve/<int:image_id>/', views.admin_approve_image, name='admin_approve_image'),
     path('admin/', admin.site.urls),
     
 ]

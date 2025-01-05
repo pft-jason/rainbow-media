@@ -4,5 +4,18 @@
 
 {% block content %}
 <h2>Pending Uploaded Images</h2>
-<p>List of pending uploaded images will be displayed here.</p>
+<ul>
+    {% for image in pending_images %}
+        <li>
+            <img src="{{ image.image_file.url }}" alt="{{ image.title }}" width="100">
+            <p>{{ image.title }}</p>
+            <p>Uploaded by: {{ image.user.username }}</p>
+            <p>Uploaded on: {{ image.uploaded_at }}</p>
+            <a href="{% url 'update_image' image.id %}" class="btn btn-primary">Edit</a>
+            <a href="{% url 'admin_approve_image' image.id %}" class="btn btn-success">Approve</a>
+        </li>
+    {% empty %}
+        <li>No pending images.</li>
+    {% endfor %}
+</ul>
 {% endblock %}
