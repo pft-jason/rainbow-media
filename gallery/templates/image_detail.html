@@ -30,9 +30,16 @@
 {% endif %}
 
 <h3>Comments</h3>
-{% for comment in comments %}
-    <p>{{ comment.user.username }}: {{ comment.content }}</p>
-{% endfor %}
+<ul>
+    {% for comment in comments %}
+        <li>
+            <p>{{ comment.content }}</p>
+            <a href="{% url 'report_comment' comment.id %}" class="text-danger">
+                <i class="fas fa-flag" style="font-size: 24px;"></i> Report
+            </a>
+        </li>
+    {% endfor %}
+</ul>
 
 <h3>Submit a Comment</h3>
 <form method="post" action="{% url 'submit_comment' image.id %}">

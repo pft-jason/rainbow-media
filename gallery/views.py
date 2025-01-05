@@ -37,7 +37,8 @@ def admin_reported_images(request):
 
 @staff_required
 def admin_reported_comments(request):
-    return render(request, 'admin_reported_comments.html')
+    reported_comments = Comment.objects.filter(report__status='PENDING').distinct()
+    return render(request, 'admin_reported_comments.html', {'reported_comments': reported_comments})
 
 @staff_required
 def admin_user_management(request):
@@ -336,3 +337,31 @@ def admin_resolve_report(request, report_id):
     report.status = 'RESOLVED'
     report.save()
     return redirect('admin_reported_images')
+
+@login_required
+def report_comment_view(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    
+    # Check if the user has already reported this comment
+    existing_report = Report.objects.filter(reported_by=request.user, comment=comment).exists()
+    if existing_report:
+        return redirect('gallery')
+    
+    if request.method == 'POST':
+        form = ReportForm(request.POST)
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.reported_by = request.user
+            report.comment = comment
+            report.save()
+            return redirect('gallery')
+    else:
+        form = ReportForm()
+    return render(request, 'report_comment.html', {'form': form, 'comment': comment})
+
+@staff_required
+def admin_resolve_comment_report(request, report_id):
+    report = get_object_or_404(Report, id=report_id)
+    report.status = 'RESOLVED'
+    report.save()
+    return redirect('admin_reported_comments')

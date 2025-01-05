@@ -4,5 +4,19 @@
 
 {% block content %}
 <h2>Reported Comments</h2>
-<p>List of reported comments will be displayed here.</p>
+<ul>
+    {% for comment in reported_comments %}
+        <li>
+            <p>{{ comment.content }}</p>
+            {% for report in comment.report_set.all %}
+                <p>Reported by: {{ report.reported_by.username }}</p>
+                <p>Report type: {{ report.report_type }}</p>
+                <p>Description: {{ report.description }}</p>
+                <a href="{% url 'admin_resolve_comment_report' report.id %}" class="btn btn-success">Resolve Report</a>
+            {% endfor %}
+        </li>
+    {% empty %}
+        <li>No reported comments.</li>
+    {% endfor %}
+</ul>
 {% endblock %}

@@ -32,7 +32,9 @@ urlpatterns = [
     path('album/create/', views.create_album, name='create_album'),
     path('save_image_order/<int:album_id>/', views.save_image_order, name='save_image_order'),
     path('report_image/<int:image_id>/', views.report_image_view, name='report_image'),
-    
+    path('report_comment/<int:comment_id>/', views.report_comment_view, name='report_comment'),
+    path('admin/reported-comments/', views.admin_reported_comments, name='admin_reported_comments'),
+    path('admin/reported-comments/resolve/<int:report_id>/', views.admin_resolve_comment_report, name='admin_resolve_comment_report'),
     path('admin_page/', views.admin_page, name='admin_page'),  # Add this line
     path('admin/pending-images/', views.admin_pending_images, name='admin_pending_images'),
     path('admin/reported-images/', views.admin_reported_images, name='admin_reported_images'),
