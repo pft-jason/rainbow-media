@@ -31,10 +31,12 @@ urlpatterns = [
     path('albums/<str:username>/', views.user_albums, name='user_albums'),
     path('album/create/', views.create_album, name='create_album'),
     path('save_image_order/<int:album_id>/', views.save_image_order, name='save_image_order'),
+    path('report_image/<int:image_id>/', views.report_image_view, name='report_image'),
     
     path('admin_page/', views.admin_page, name='admin_page'),  # Add this line
     path('admin/pending-images/', views.admin_pending_images, name='admin_pending_images'),
     path('admin/reported-images/', views.admin_reported_images, name='admin_reported_images'),
+    path('admin/reported-images/resolve/<int:report_id>/', views.admin_resolve_report, name='admin_resolve_report'),
     path('admin/reported-comments/', views.admin_reported_comments, name='admin_reported_comments'),
     path('admin/user-management/', views.admin_user_management, name='admin_user_management'),
     path('admin/site-statistics/', views.admin_site_statistics, name='admin_site_statistics'),

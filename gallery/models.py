@@ -23,6 +23,11 @@ class CustomImageManager(models.Manager):
         if user.is_staff:
             return images
 
+        # Exclude images reported by the user
+        if user.is_authenticated:
+            reported_images = Report.objects.filter(reported_by=user).values_list('image_id', flat=True)
+            images = images.exclude(id__in=reported_images)
+
         # If user is authenticated but not staff, filter based on privacy settings
         if user.is_authenticated:
             return images.filter(
@@ -281,6 +286,10 @@ class Report(models.Model):
     """
     Represents a report made by a user against inappropriate content (images or comments).
     """
+    REPORT_STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('RESOLVED', 'Resolved'),
+    ]
     REPORT_TYPES = [
         ("SPAM", "Spam"),
         ("ABUSE", "Abuse"),
@@ -292,6 +301,7 @@ class Report(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True, blank=True)
     report_type = models.CharField(max_length=10, choices=REPORT_TYPES)
     description = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=10, choices=REPORT_STATUS_CHOICES, default='PENDING')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

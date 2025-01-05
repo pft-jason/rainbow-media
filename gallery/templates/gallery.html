@@ -32,6 +32,9 @@
                 <a href="{% url 'favorite_image' image.id %}" class="text-warning">
                     <i class="fas fa-star" style="font-size: 24px;"></i>
                 </a>
+                <a href="{% url 'report_image' image.id %}" class="text-danger">
+                    <i class="fas fa-flag" style="font-size: 24px;"></i>
+                </a>
             </div>
             <div class="media-body">
                 <h5 class="mt-0 mb-1">

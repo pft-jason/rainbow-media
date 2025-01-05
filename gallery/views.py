@@ -1,8 +1,8 @@
 # views.py
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import ImageUploadForm, UserRegistrationForm, UserProfileForm, ImageUpdateForm, CommentForm
+from .forms import ReportForm, ImageUploadForm, UserRegistrationForm, UserProfileForm, ImageUpdateForm, CommentForm
 from django.contrib.auth.decorators import login_required
-from .models import AlbumImage, add_image_to_album, Album, Follow, Image, get_image_visibility, UserProfile, search_images, Like, Dislike, Favorite, Comment, ModerationStatus, remove_from_favorites, add_to_favorites
+from .models import Report, AlbumImage, add_image_to_album, Album, Follow, Image, get_image_visibility, UserProfile, search_images, Like, Dislike, Favorite, Comment, ModerationStatus, remove_from_favorites, add_to_favorites
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse, JsonResponse
 from django.core.paginator import Paginator
@@ -19,7 +19,7 @@ def staff_required(view_func):
 @staff_required
 def admin_page(request):
     pending_images_count = Image.objects.filter(moderation_status=ModerationStatus.PENDING).count()
-    reported_images_count = Image.objects.filter(report__isnull=False).distinct().count()
+    reported_images_count = Image.objects.filter(report__status='PENDING').distinct().count()
     return render(request, 'admin_page.html', {
         'pending_images_count': pending_images_count,
         'reported_images_count': reported_images_count,
@@ -32,7 +32,7 @@ def admin_pending_images(request):
 
 @staff_required
 def admin_reported_images(request):
-    reported_images = Image.objects.filter(report__isnull=False).distinct()
+    reported_images = Image.objects.filter(report__status='PENDING').distinct()
     return render(request, 'admin_reported_images.html', {'reported_images': reported_images})
 
 @staff_required
@@ -307,3 +307,32 @@ def admin_approve_image(request, image_id):
     image.moderation_status = ModerationStatus.APPROVED
     image.save()
     return redirect('admin_pending_images')
+
+@login_required
+def report_image_view(request, image_id):
+    image = get_object_or_404(Image, id=image_id)
+    
+    # Check if the user has already reported this image
+    existing_report = Report.objects.filter(reported_by=request.user, image=image).exists()
+    if existing_report:
+        # Redirect to the gallery with a message or handle it as needed
+        return redirect('gallery')
+    
+    if request.method == 'POST':
+        form = ReportForm(request.POST)
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.reported_by = request.user
+            report.image = image
+            report.save()
+            return redirect('gallery')
+    else:
+        form = ReportForm()
+    return render(request, 'report_image.html', {'form': form, 'image': image})
+
+@staff_required
+def admin_resolve_report(request, report_id):
+    report = get_object_or_404(Report, id=report_id)
+    report.status = 'RESOLVED'
+    report.save()
+    return redirect('admin_reported_images')

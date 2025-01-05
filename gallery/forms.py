@@ -1,5 +1,5 @@
 from django import forms 
-from .models import Image, Category, Tag, UserProfile, Comment
+from .models import Image, Category, Tag, UserProfile, Comment, Report
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 import json
@@ -114,3 +114,11 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ['content']
+
+class ReportForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        fields = ['report_type', 'description']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+        }

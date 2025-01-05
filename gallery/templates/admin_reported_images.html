@@ -13,10 +13,9 @@
                 <p>Reported by: {{ report.reported_by.username }}</p>
                 <p>Report type: {{ report.report_type }}</p>
                 <p>Description: {{ report.description }}</p>
+                <a href="{% url 'admin_resolve_report' report.id %}" class="btn btn-success">Resolve Report</a>
             {% endfor %}
             <a href="{% url 'update_image' image.id %}" class="btn btn-primary">Edit</a>
-            <a href="{% url 'admin_approve_image' image.id %}" class="btn btn-success">Approve</a>
-            <a href="{% url 'admin_delete_image' image.id %}" class="btn btn-danger">Delete</a>
         </li>
     {% empty %}
         <li>No reported images.</li>
