@@ -56,7 +56,12 @@ ROOT_URLCONF = '_rm.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'gallery/templates/admin'),
+            os.path.join(BASE_DIR, 'gallery/templates/components'),
+            os.path.join(BASE_DIR, 'gallery/templates/gallery'),
+            os.path.join(BASE_DIR, 'gallery/templates/profile'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
