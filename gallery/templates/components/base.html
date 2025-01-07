@@ -11,11 +11,19 @@
         .container {
             max-width: 1600px; /* Set your desired max-width here */
         }
+        .pending-image {
+            opacity: 0.5;
+        }
+        .pending-badge {
+            background-color: #ffc107;
+            color: #000;
+        }
     </style>
 
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
         <a class="navbar-brand" href="#">Rainbow Media</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -27,14 +35,16 @@
                 </li>
                 {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'upload_image' %}">Upload Image</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                        <a class="nav-link" href="{% url 'upload_image' %}">Upload</a>
                     </li>
                 {% endif %}
             </ul>
             <ul class="navbar-nav ml-auto">
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                    </li>
+                {% endif %}
                 {% if user.is_authenticated %}
                     <li class="nav-item">
                         <form id="logout-form" method="post" action="{% url 'logout' %}" style="display: none;">
@@ -57,6 +67,7 @@
                 {% endif %}
             </ul>
         </div>
+    </div>
     </nav>
 
     <div class="container mt-4">
