@@ -192,6 +192,7 @@ class Image(models.Model):
     def __str__(self):
         return self.title
 
+
 class Comment(models.Model):
     """Represents a comment made by a user on an image."""
     image = models.ForeignKey(Image, on_delete=models.CASCADE, related_name="comments")
@@ -281,6 +282,7 @@ class Follow(models.Model):
 
     class Meta:
         unique_together = ('follower', 'followed')
+
 
 class Report(models.Model):
     """

@@ -1,0 +1,30 @@
+<div class="gallery-item card">
+    <div class="image-container card-img-top {% if image.moderation_status == 'PENDING' and user.is_staff %}pending{% endif %}">
+        <a href="{% url 'image_detail' image.id %}">
+            <img src="{{ image.image_file.url }}" class="card-img-top" alt="{{ image.title }}">
+        </a>
+        {% if image.moderation_status == 'PENDING' and user.is_staff %}
+            <span class="badge badge-warning position-absolute pending-badge">Pending</span>
+        {% endif %}
+    </div>
+    <div class="card-body gallery-item-info">
+        <h5 class="card-title">{{ image.title }}</h5>
+        <div class="d-flex justify-content-around mt-2">
+            <a href="{% url 'like_image' image.id %}" class="text-success">
+                <i class="fas fa-thumbs-up" style="font-size: 24px;"></i>
+            </a>
+            <a href="{% url 'dislike_image' image.id %}" class="text-danger">
+                <i class="fas fa-thumbs-down" style="font-size: 24px;"></i>
+            </a>
+            <a href="{% url 'download_image' image.id %}" class="text-primary">
+                <i class="fas fa-download" style="font-size: 24px;"></i>
+            </a>
+            <a href="{% url 'favorite_image' image.id %}" class="text-warning">
+                <i class="fas fa-star" style="font-size: 24px;"></i>
+            </a>
+            <a href="{% url 'report_image' image.id %}" class="text-danger">
+                <i class="fas fa-flag" style="font-size: 24px;"></i>
+            </a>
+        </div>
+    </div>
+</div>
