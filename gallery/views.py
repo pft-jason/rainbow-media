@@ -11,6 +11,8 @@ from django.contrib.auth.models import User
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import user_passes_test
+from django.views.decorators.http import require_POST
+
 
 def staff_required(view_func):
     decorated_view_func = user_passes_test(lambda u: u.is_staff)(view_func)
@@ -369,3 +371,24 @@ def admin_resolve_comment_report(request, report_id):
     report.status = 'RESOLVED'
     report.save()
     return redirect('admin_reported_comments')
+
+@require_POST
+@csrf_exempt
+def set_cover_image(request):
+    data = json.loads(request.body)
+    album_id = data.get('album_id')
+    image_id = data.get('image_id')
+
+    try:
+        album = Album.objects.get(id=album_id)
+        if image_id:
+            image = Image.objects.get(id=image_id)
+            album.cover_image = image
+        else:
+            album.cover_image = None
+        album.save()
+        return JsonResponse({'success': True})
+    except Album.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Album not found'})
+    except Image.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Image not found'})

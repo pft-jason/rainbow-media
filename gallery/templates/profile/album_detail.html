@@ -11,6 +11,9 @@
             <a href="{% url 'image_detail' album_image.image.id %}">
                 <img src="{{ album_image.image.image_file.url }}" alt="{{ album_image.image.alt_text|default:album_image.image.description|default:album_image.image.title }}" class="img-thumbnail" style="width: 100%;">
             </a>
+            <div class="position-absolute" style="top: 10px; right: 25px; display: flex; align-items: center;">
+                <input type="checkbox" class="cover-checkbox" data-album-id="{{ album.id }}" data-image-id="{{ album_image.image.id }}" {% if album.cover_image == album_image.image %}checked{% endif %} style="margin: 0;">
+            </div>
         </div>
     {% endfor %}
 </div>
@@ -49,6 +52,45 @@
             } else {
                 alert('Failed to save order.');
             }
+        }).catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while saving the order.');
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkboxes = document.querySelectorAll('.cover-checkbox');
+
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const albumId = this.getAttribute('data-album-id');
+                const imageId = this.getAttribute('data-image-id');
+                const isChecked = this.checked;
+
+                fetch(`/set_cover_image/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        album_id: albumId,
+                        image_id: isChecked ? imageId : null
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        checkboxes.forEach(cb => {
+                            if (cb !== this && cb.getAttribute('data-album-id') === albumId) {
+                                cb.checked = false;
+                            }
+                        });
+                    } else {
+                        this.checked = !isChecked;
+                    }
+                });
+            });
         });
     });
 </script>

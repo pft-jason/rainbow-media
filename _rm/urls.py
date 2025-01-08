@@ -28,6 +28,7 @@ urlpatterns = [
     path('image/<int:image_id>/comment/', views.submit_comment, name='submit_comment'),
 
     path('albums/', views.album_gallery, name='albums'),
+    path('set_cover_image/', views.set_cover_image, name='set_cover_image'),
 
     # Profile
     path('profile/', views.profile, name='profile'),

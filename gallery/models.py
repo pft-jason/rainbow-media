@@ -8,6 +8,14 @@ from django.http import Http404
 from akismet import Akismet
 from django.db.models import Q
 from django.core.paginator import Paginator
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+
 
 
 class CustomImageManager(models.Manager):
@@ -251,10 +259,19 @@ class Album(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="albums")
     name = models.CharField(max_length=100)
     images = models.ManyToManyField(Image, related_name="albums", through="AlbumImage")
+    cover_image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True, blank=True, related_name='cover_for_albums')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
+
+    def set_default_cover_image(self):
+        if not self.cover_image and self.images.exists():
+            self.cover_image = self.images.first()
+
+    def save(self, *args, **kwargs):
+        self.set_default_cover_image()
+        super().save(*args, **kwargs)
 
     @classmethod
     def get_or_create_favorites_album(cls, user):
@@ -272,6 +289,12 @@ class AlbumImage(models.Model):
     class Meta:
         unique_together = ('album', 'image')
         ordering = ['order']
+
+@receiver(post_save, sender=AlbumImage)
+def set_album_cover_image(sender, instance, created, **kwargs):
+    if created and not instance.album.cover_image:
+        instance.album.cover_image = instance.image
+        instance.album.save()
 
 
 class Follow(models.Model):
@@ -448,3 +471,24 @@ def add_image_to_album(user, image, album_id):
     """Adds an image to the specified album."""
     album = Album.objects.get(id=album_id, user=user)
     album.images.add(image)
+
+@require_POST
+@csrf_exempt
+def set_cover_image(request):
+    data = json.loads(request.body)
+    album_id = data.get('album_id')
+    image_id = data.get('image_id')
+
+    try:
+        album = Album.objects.get(id=album_id)
+        if image_id:
+            image = Image.objects.get(id=image_id)
+            album.cover_image = image
+        else:
+            album.cover_image = None
+        album.save()
+        return JsonResponse({'success': True})
+    except Album.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Album not found'})
+    except Image.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Image not found'})
