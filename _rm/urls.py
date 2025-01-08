@@ -4,21 +4,26 @@ from django.contrib.auth import views as auth_views
 from django.contrib import admin
 from django.urls import path
 from gallery import views
+from django.views.generic import RedirectView
 
 urlpatterns = [
 
-    # Default
-    path('', views.gallery, name='gallery'),
+    # Redirect root URL to /explore/
+    path('', RedirectView.as_view(url='/explore/', permanent=True)),    
 
     # Account management
     path('register/', views.register, name='register'),
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     
+    path('explore/', views.gallery, name='gallery'),
+    path('explore/tags/', views.tags_view, name='tags'),
+    path('explore/albums/', views.album_gallery, name='albums'),
+
     # Gallery
     path('search/', views.search, name='search'),
     path('upload/', views.upload_image, name='upload_image'),
-    path('image/<int:image_id>/', views.image_detail, name='image_detail'),
+    path('explore/image/<int:image_id>/', views.image_detail, name='image_detail'),
     path('image/<int:image_id>/update/', views.update_image, name='update_image'), 
     path('image/<int:image_id>/add_to_album/', views.add_to_album, name='add_to_album'),
     path('image/<int:image_id>/like/', views.like_image, name='like_image'),
@@ -27,7 +32,7 @@ urlpatterns = [
     path('image/<int:image_id>/favorite/', views.favorite_image, name='favorite_image'),
     path('image/<int:image_id>/comment/', views.submit_comment, name='submit_comment'),
 
-    path('albums/', views.album_gallery, name='albums'),
+    
     path('set_cover_image/', views.set_cover_image, name='set_cover_image'),
 
     # Profile
@@ -62,6 +67,9 @@ urlpatterns = [
     path('admin/system-logs/', views.admin_system_logs, name='admin_system_logs'),
     path('admin/reported-images/', views.admin_reported_images, name='admin_reported_images'),
     
+    
+    path('explore/tags/<int:tag_id>/', views.tagged_images_view, name='tagged_images'),
+
     # Moderation
     path('admin/pending-images/approve/<int:image_id>/', views.admin_approve_image, name='admin_approve_image'),
     

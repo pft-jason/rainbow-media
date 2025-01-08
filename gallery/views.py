@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ReportForm, ImageUploadForm, UserRegistrationForm, UserProfileForm, ImageUpdateForm, CommentForm
 from django.contrib.auth.decorators import login_required
-from .models import Report, AlbumImage, add_image_to_album, Album, Follow, Image, get_image_visibility, UserProfile, search_images, Like, Dislike, Favorite, Comment, ModerationStatus, remove_from_favorites, add_to_favorites
+from .models import Tag, Report, AlbumImage, add_image_to_album, Album, Follow, Image, get_image_visibility, UserProfile, search_images, Like, Dislike, Favorite, Comment, ModerationStatus, remove_from_favorites, add_to_favorites
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse, JsonResponse
 from django.core.paginator import Paginator
@@ -392,3 +392,12 @@ def set_cover_image(request):
         return JsonResponse({'success': False, 'error': 'Album not found'})
     except Image.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Image not found'})
+
+def tags_view(request):
+    tags = Tag.objects.all()
+    return render(request, 'gallery/tags.html', {'tags': tags})
+
+def tagged_images_view(request, tag_id):
+    tag = Tag.objects.get(id=tag_id)
+    images = Image.objects.filter(tags=tag)
+    return render(request, 'gallery/tags_gallery.html', {'tag': tag, 'images': images})

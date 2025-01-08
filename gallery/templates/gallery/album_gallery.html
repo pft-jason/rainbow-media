@@ -1,46 +1,20 @@
 {% extends "base.html" %}
-
 {% load static %}
 
 {% block title %}Albums{% endblock %}
 
 {% block content %}
-<div class=" mt-4">
-    <div class="d-flex justify-content-between mb-3">
-        <div class="filter-links">
-            <a href="{% url 'gallery' %}" class="btn btn-link">
-                <i class="fas fa-photo-video"></i> Media
-            </a>
-            <a href="{% url 'albums' %}" class="btn btn-link active">
-                <i class="fas fa-book"></i> Albums
-            </a>
-            <a href="#" class="btn btn-link">
-                <i class="fas fa-tags"></i> Tags
-            </a>
-        </div>
-        <div class="filter-links">
-            <a href="#" class="btn btn-link">
-                <i class="fas fa-sort-amount-down"></i> Newest
-            </a>
-            <a href="#" class="btn btn-link">
-                <i class="fas fa-sort-amount-up"></i> Oldest
-            </a>
-            <a href="#" class="btn btn-link">
-                <i class="fas fa-thumbs-up"></i> Most Liked
-            </a>
-            <a href="#" class="btn btn-link">
-                <i class="fas fa-star"></i> Most Favorited
-            </a>
-        </div>
-    </div>
-    <div class="row">
-        {% for album in albums %}
+
+{% include "components/filterbar.html" %}
+
+<div class="row">
+    {% for album in albums %}
     <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-4 mb-lg-0 px-0">
         <div class="gallery-item card">
             <div class="image-container card-img-top" style="position: relative; width: 100%; padding-top: 100%; overflow: hidden;">
                 <a href="{% url 'album_detail' album.id %}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
                     {% if album.cover_image %}
-                        <img src="{{ album.cover_image.image_file.url }}" class="w-100 shadow-1-strong rounded mb-4" alt="{{ album.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="{{ album.cover_image.image_file.url }}" class="w-100 shadow-1-strong rounded mb-4" alt="{{ album.name }}" style="width: 100%; height: 100%; object-fit: cover;">
                     {% else %}
                         <img src="{% static 'img/placeholder.png' %}" class="w-100 shadow-1-strong rounded mb-4" alt="No cover image" style="width: 100%; height: 100%; object-fit: cover;">
                     {% endif %}
@@ -49,8 +23,11 @@
             </div>
             <div style="position: absolute; bottom: 5px; left: 5px; color: white; padding: 5px; text-shadow: 1px 1px 2px black;">
                 <h6 class="card-title" style="margin: 0;">
-                    <a href="{% url 'album_detail' album.id %}" style="color: white; text-decoration: none;">{{ album.title }}</a>
+                    <a href="{% url 'album_detail' album.id %}" style="color: white; text-decoration: none;">{{ album.name }}</a>
                 </h6>
+                <p style="margin: 0; font-size: smaller;">
+                    <a href="{% url 'user_profile' album.user %}" style="color: white; text-decoration: none;">{{ album.user }}</a>
+                </p>
                 <p style="margin: 0; font-size: smaller;">
                     {{ album.description }}
                 </p>
@@ -58,6 +35,5 @@
         </div>
     </div>
     {% endfor %}
-    </div>
 </div>
 {% endblock %}

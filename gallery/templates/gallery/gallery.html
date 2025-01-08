@@ -4,33 +4,7 @@
 
 {% block content %}
 
-<div class="d-flex justify-content-between mb-3">
-    <div class="filter-links">
-        <a href="{% url 'gallery' %}" class="btn btn-link active">
-            <i class="fas fa-photo-video"></i> Media
-        </a>
-        <a href="{% url 'albums' %}" class="btn btn-link">
-            <i class="fas fa-book"></i> Albums
-        </a>
-        <a href="#" class="btn btn-link">
-            <i class="fas fa-tags"></i> Tags
-        </a>
-    </div>
-    <div class="filter-links">
-        <a href="#" class="btn btn-link">
-            <i class="fas fa-sort-amount-down"></i> Newest
-        </a>
-        <a href="#" class="btn btn-link">
-            <i class="fas fa-sort-amount-up"></i> Oldest
-        </a>
-        <a href="#" class="btn btn-link">
-            <i class="fas fa-thumbs-up"></i> Most Liked
-        </a>
-        <a href="#" class="btn btn-link">
-            <i class="fas fa-star"></i> Most Favorited
-        </a>
-    </div>
-</div>
+{% include "components/filterbar.html" %}
 
 <div class="row">
     {% for image in page_obj %}
