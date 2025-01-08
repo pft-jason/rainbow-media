@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Albums{% endblock %}
+
+{% block content %}
+<div class=" mt-4">
+    <div class="d-flex justify-content-between mb-3">
+        <div class="filter-links">
+            <a href="{% url 'gallery' %}" class="btn btn-link">
+                <i class="fas fa-photo-video"></i> Media
+            </a>
+            <a href="{% url 'albums' %}" class="btn btn-link active">
+                <i class="fas fa-book"></i> Albums
+            </a>
+            <a href="#" class="btn btn-link">
+                <i class="fas fa-tags"></i> Tags
+            </a>
+        </div>
+        <div class="filter-links">
+            <a href="#" class="btn btn-link">
+                <i class="fas fa-sort-amount-down"></i> Newest
+            </a>
+            <a href="#" class="btn btn-link">
+                <i class="fas fa-sort-amount-up"></i> Oldest
+            </a>
+            <a href="#" class="btn btn-link">
+                <i class="fas fa-thumbs-up"></i> Most Liked
+            </a>
+            <a href="#" class="btn btn-link">
+                <i class="fas fa-star"></i> Most Favorited
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        {% for album in albums %}
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+            <div class="card">
+                <img src="{{ album.cover_image.url }}" class="card-img-top" alt="{{ album.title }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ album.title }}</h5>
+                    <p class="card-text">{{ album.description }}</p>
+                    <a href="{% url 'album_detail' album.id %}" class="btn btn-primary">View Album</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

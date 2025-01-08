@@ -150,6 +150,10 @@ def gallery(request):
     
     return render(request, 'gallery.html', {'page_obj': page_obj})
 
+def album_gallery(request):
+    albums = Album.objects.all()
+    return render(request, 'album_gallery.html', {'albums': albums})
+
 def user_gallery(request, username):
     user = get_object_or_404(User, username=username)
     images = Image.objects.get_filtered_images(request.user).filter(user=user).order_by('-uploaded_at')

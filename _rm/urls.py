@@ -27,6 +27,8 @@ urlpatterns = [
     path('image/<int:image_id>/favorite/', views.favorite_image, name='favorite_image'),
     path('image/<int:image_id>/comment/', views.submit_comment, name='submit_comment'),
 
+    path('albums/', views.album_gallery, name='albums'),
+
     # Profile
     path('profile/', views.profile, name='profile'),
     path('profile/edit/', views.profile_edit, name='profile_edit'),
