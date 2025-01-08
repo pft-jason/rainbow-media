@@ -18,7 +18,7 @@ class ImageUploadForm(forms.ModelForm):
 
     class Meta:
         model = Image
-        fields = ['title', 'description', 'image_file', 'category', 'alt_text', 'privacy']
+        fields = ['image_file', 'title', 'description', 'category', 'alt_text', 'privacy']
 
     def save(self, user=None, commit=True):
         instance = super(ImageUploadForm, self).save(commit=False)
