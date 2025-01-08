@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block title %}Albums{% endblock %}
 
 {% block content %}
@@ -37,7 +39,11 @@
         <div class="gallery-item card">
             <div class="image-container card-img-top" style="position: relative; width: 100%; padding-top: 100%; overflow: hidden;">
                 <a href="{% url 'album_detail' album.id %}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-                    <img src="{{ album.cover_image.url }}" class="w-100 shadow-1-strong rounded mb-4" alt="{{ album.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% if album.cover_image %}
+                        <img src="{{ album.cover_image.image_file.url }}" class="w-100 shadow-1-strong rounded mb-4" alt="{{ album.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                        <img src="{% static 'img/placeholder.png' %}" class="w-100 shadow-1-strong rounded mb-4" alt="No cover image" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% endif %}
                 </a>
                 <i class="fas fa-book position-absolute" style="top: 10px; left: 10px; color: white; font-size: 24px; text-shadow: 1px 1px 2px black;"></i>
             </div>
