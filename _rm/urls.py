@@ -17,6 +17,7 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     
     path('explore/media/', views.gallery, name='gallery'),
+    path('gallery/tag/<int:tag_id>/', views.gallery, name='tagged_images'),
     path('explore/tags/', views.tags_view, name='tags'),
     path('explore/albums/', views.album_gallery, name='albums'),
 
@@ -71,8 +72,8 @@ urlpatterns = [
     path('dislike_album/<int:album_id>/', views.dislike_album_view, name='dislike_album'),
     path('favorite_album/<int:album_id>/', views.favorite_album_view, name='favorite_album'),
     path('report_album/<int:album_id>/', views.report_album_view, name='report_album'),
-    
-    path('explore/tags/<int:tag_id>/', views.tagged_images_view, name='tagged_images'),
+
+    path('explore/tags/<int:tag_id>/', views.gallery, name='tagged_images'),
 
     # Moderation
     path('admin/pending-images/approve/<int:image_id>/', views.admin_approve_image, name='admin_approve_image'),

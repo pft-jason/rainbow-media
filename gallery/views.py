@@ -143,9 +143,13 @@ def register(request):
     return render(request, 'register.html', {'form': form})
 
 
-def gallery(request):
-    # Get filtered images based on the current user
-    images = Image.objects.get_filtered_images(request.user)
+def gallery(request, tag_id=None):
+    if tag_id:
+        tag = get_object_or_404(Tag, id=tag_id)
+        images = Image.objects.get_filtered_images(request.user).filter(tags=tag)
+    else:
+        tag = None
+        images = Image.objects.get_filtered_images(request.user)
 
     filter_type = request.GET.get('filter', 'newest')
     if filter_type == 'newest':
@@ -157,12 +161,11 @@ def gallery(request):
     elif filter_type == 'most_favorited':
         images = images.annotate(favorite_count=Count('favorited_by')).order_by('-favorite_count')
 
-    # Pagination: Show 20 images per page
     paginator = Paginator(images, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
-    return render(request, 'gallery.html', {'page_obj': page_obj})
+
+    return render(request, 'gallery/gallery.html', {'page_obj': page_obj, 'tag': tag})
 
 def album_gallery(request):
     # Get filtered albums based on the current user
@@ -428,10 +431,10 @@ def tags_view(request):
     tags = Tag.objects.all()
     return render(request, 'gallery/tags.html', {'tags': tags})
 
-def tagged_images_view(request, tag_id):
-    tag = Tag.objects.get(id=tag_id)
-    images = Image.objects.filter(tags=tag)
-    return render(request, 'gallery/tags_gallery.html', {'tag': tag, 'images': images})
+# def tagged_images_view(request, tag_id):
+#     tag = Tag.objects.get(id=tag_id)
+#     images = Image.objects.filter(tags=tag)
+#     return render(request, 'gallery/tags_gallery.html', {'tag': tag, 'images': images})
 
 def like_album_view(request, album_id):
     album = get_object_or_404(Album, id=album_id)
