@@ -212,7 +212,6 @@ def create_album(request):
         return redirect('profile')
     return render(request, 'create_album.html')
 
-@login_required
 def image_detail(request, image_id):
     image = get_object_or_404(Image, id=image_id)
 
@@ -221,7 +220,10 @@ def image_detail(request, image_id):
             raise PermissionDenied("You do not have permission to view this image.")
     
     comment_form = CommentForm()
-    user_albums = Album.objects.filter(user=request.user)
+    if request.user.is_authenticated:
+        user_albums = Album.objects.filter(user=request.user)
+    else:
+        user_albums = Album.objects.none()  # or handle the case when the user is not authenticated
     # TODO: set up so user can select whether comments on their images are moderated or not.
     # comments = image.comments.filter(moderation_status=ModerationStatus.APPROVED)
     comments = image.comments.all()

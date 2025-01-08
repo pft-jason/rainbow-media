@@ -222,7 +222,7 @@ class Image(models.Model):
 
     def calculate_popularity_score(self):
         """Calculates the popularity score based on likes and views."""
-        likes_count = self.likes.count()
+        likes_count = self.liked_by.count()
         return (likes_count * 2) + self.views
 
     def __str__(self):
