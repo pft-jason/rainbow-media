@@ -9,14 +9,14 @@ from django.views.generic import RedirectView
 urlpatterns = [
 
     # Redirect root URL to /explore/
-    path('', RedirectView.as_view(url='/explore/', permanent=True)),    
+    path('', RedirectView.as_view(url='/explore/media/', permanent=False)),    
 
     # Account management
     path('register/', views.register, name='register'),
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     
-    path('explore/', views.gallery, name='gallery'),
+    path('explore/media/', views.gallery, name='gallery'),
     path('explore/tags/', views.tags_view, name='tags'),
     path('explore/albums/', views.album_gallery, name='albums'),
 

@@ -12,6 +12,7 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.http import require_POST
+from django.db.models import Count
 
 
 def staff_required(view_func):
@@ -144,6 +145,16 @@ def register(request):
 def gallery(request):
     # Get filtered images based on the current user
     images = Image.objects.get_filtered_images(request.user)
+
+    filter_type = request.GET.get('filter', 'newest')
+    if filter_type == 'newest':
+        images = images.order_by('-uploaded_at')
+    elif filter_type == 'oldest':
+        images = images.order_by('uploaded_at')
+    elif filter_type == 'most_liked':
+        images = images.annotate(like_count=Count('liked_by')).order_by('-like_count')
+    elif filter_type == 'most_favorited':
+        images = images.annotate(favorite_count=Count('favorited_by')).order_by('-favorite_count')
 
     # Pagination: Show 20 images per page
     paginator = Paginator(images, 20)

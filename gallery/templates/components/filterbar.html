@@ -1,26 +1,28 @@
+{% load custom_filters %}
+
 <div class="d-flex justify-content-between mb-3">
     <div class="filter-links">
-        <a href="{% url 'gallery' %}" class="btn btn-link">
+        <a href="{% url 'gallery' %}" class="btn btn-link {% if request.path|startswith:'/explore/media/' %}active{% endif %}">
             <i class="fas fa-photo-video"></i> Media
         </a>
-        <a href="{% url 'albums' %}" class="btn btn-link active">
+        <a href="{% url 'albums' %}" class="btn btn-link {% if request.path|startswith:'/explore/albums/' %}active{% endif %}">
             <i class="fas fa-book"></i> Albums
         </a>
-        <a class="btn btn-link" href="{% url 'tags' %}">
+        <a href="{% url 'tags' %}" class="btn btn-link {% if request.path|startswith:'/explore/tags/' %}active{% endif %}">
             <i class="fas fa-tags"></i> Tags
         </a>
     </div>
     <div class="filter-links">
-        <a href="#" class="btn btn-link">
+        <a href="{% url 'gallery' %}?filter=newest" class="btn btn-link">
             <i class="fas fa-sort-amount-down"></i> Newest
         </a>
-        <a href="#" class="btn btn-link">
+        <a href="{% url 'gallery' %}?filter=oldest" class="btn btn-link">
             <i class="fas fa-sort-amount-up"></i> Oldest
         </a>
-        <a href="#" class="btn btn-link">
+        <a href="{% url 'gallery' %}?filter=most_liked" class="btn btn-link">
             <i class="fas fa-thumbs-up"></i> Most Liked
         </a>
-        <a href="#" class="btn btn-link">
+        <a href="{% url 'gallery' %}?filter=most_favorited" class="btn btn-link">
             <i class="fas fa-star"></i> Most Favorited
         </a>
     </div>

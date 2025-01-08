@@ -30,28 +30,40 @@
 
     <style>
         .filter-links a {
+            font-size: medium;
             color: black;
             text-decoration: none;
             border-bottom: 2px solid transparent;
             padding-bottom: 0;
         }
-    
         .filter-links a:hover {
             color: black;
             text-decoration: none;
         }
         .btn-link.active {
-        border-bottom: 2px solid;
-        padding-bottom: 5px; /* Adjust as needed */
-        margin-bottom: -5px; /* Adjust as needed */
-        border-radius: 0;
-
-        
-    }
-    .btn-link:focus {
-    outline: none;
-    box-shadow: none;
-}
+            border-bottom: 2px solid;
+            padding-bottom: 5px; /* Adjust as needed */
+            margin-bottom: -5px; /* Adjust as needed */
+            border-radius: 0;
+        }
+        .btn-link:focus {
+            outline: none;
+            box-shadow: none;
+        }
+        /* Ensure all nav links are always black */
+        .navbar-nav .nav-link {
+            color: black !important;
+        }
+        .navbar-nav .nav-link.admin {
+            color: red !important;
+        }
+        /* Add border underline to active nav link */
+        .navbar-nav .nav-link.active {
+            border-bottom: 2px solid;
+            padding-bottom: 5px; /* Adjust as needed */
+            margin-bottom: -5px; /* Adjust as needed */
+            border-radius: 0;
+        }
     </style>
 
     <!-- Bootstrap JS and dependencies -->

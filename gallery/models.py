@@ -224,7 +224,7 @@ class Comment(models.Model):
 class Like(models.Model):
     """Represents a like on an image by a user."""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="likes")
-    image = models.ForeignKey(Image, on_delete=models.CASCADE, related_name="likes")
+    image = models.ForeignKey(Image, on_delete=models.CASCADE, related_name="liked_by")
     liked_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
