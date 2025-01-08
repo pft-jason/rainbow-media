@@ -164,8 +164,27 @@ def gallery(request):
     return render(request, 'gallery.html', {'page_obj': page_obj})
 
 def album_gallery(request):
-    albums = Album.objects.all()
-    return render(request, 'album_gallery.html', {'albums': albums})
+    # Get filtered albums based on the current user
+
+    albums = Album.objects.get_filtered_albums(request.user)
+    
+
+    filter_type = request.GET.get('filter', 'newest')
+    if filter_type == 'newest':
+        albums = albums.order_by('-created_at')
+    elif filter_type == 'oldest':
+        albums = albums.order_by('created_at')
+    elif filter_type == 'most_liked':
+        albums = albums.annotate(like_count=Count('liked_by')).order_by('-like_count')
+    elif filter_type == 'most_favorited':
+        albums = albums.annotate(favorite_count=Count('favorited_by')).order_by('-favorite_count')
+    print(albums)
+    # Pagination: Show 20 albums per page
+    paginator = Paginator(albums, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'album_gallery.html', {'page_obj': page_obj})
 
 def user_gallery(request, username):
     user = get_object_or_404(User, username=username)

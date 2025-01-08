@@ -13,17 +13,32 @@
         </a>
     </div>
     <div class="filter-links">
-        <a href="{% url 'gallery' %}?filter=newest" class="btn btn-link">
-            <i class="fas fa-sort-amount-down"></i> Newest
-        </a>
-        <a href="{% url 'gallery' %}?filter=oldest" class="btn btn-link">
-            <i class="fas fa-sort-amount-up"></i> Oldest
-        </a>
-        <a href="{% url 'gallery' %}?filter=most_liked" class="btn btn-link">
-            <i class="fas fa-thumbs-up"></i> Most Liked
-        </a>
-        <a href="{% url 'gallery' %}?filter=most_favorited" class="btn btn-link">
-            <i class="fas fa-star"></i> Most Favorited
-        </a>
+        {% if request.path|startswith:'/explore/media/' %}
+            <a href="{% url 'gallery' %}?filter=newest" class="btn btn-link">
+                <i class="fas fa-sort-amount-down"></i> Newest
+            </a>
+            <a href="{% url 'gallery' %}?filter=oldest" class="btn btn-link">
+                <i class="fas fa-sort-amount-up"></i> Oldest
+            </a>
+            <a href="{% url 'gallery' %}?filter=most_liked" class="btn btn-link">
+                <i class="fas fa-thumbs-up"></i> Most Liked
+            </a>
+            <a href="{% url 'gallery' %}?filter=most_favorited" class="btn btn-link">
+                <i class="fas fa-star"></i> Most Favorited
+            </a>
+        {% elif request.path|startswith:'/explore/albums/' %}
+            <a href="{% url 'albums' %}?filter=newest" class="btn btn-link">
+                <i class="fas fa-sort-amount-down"></i> Newest
+            </a>
+            <a href="{% url 'albums' %}?filter=oldest" class="btn btn-link">
+                <i class="fas fa-sort-amount-up"></i> Oldest
+            </a>
+            <a href="{% url 'albums' %}?filter=most_liked" class="btn btn-link">
+                <i class="fas fa-thumbs-up"></i> Most Liked
+            </a>
+            <a href="{% url 'albums' %}?filter=most_favorited" class="btn btn-link">
+                <i class="fas fa-star"></i> Most Favorited
+            </a>
+        {% endif %}
     </div>
 </div>

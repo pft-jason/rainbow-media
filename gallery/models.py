@@ -47,6 +47,34 @@ class CustomImageManager(models.Manager):
         else:
             return images.filter(privacy="public", moderation_status=ModerationStatus.APPROVED).distinct()
 
+class CustomAlbumManager(models.Manager):
+    def get_filtered_albums(self, user):
+        """Filters albums based on privacy settings."""
+        
+        # Start by getting all albums with related follower information
+        albums = self.all().prefetch_related(
+            models.Prefetch('user__followers', queryset=Follow.objects.all())
+        )
+        
+        # If user is staff, show all albums
+        if user.is_staff:
+            return albums
+
+        # Exclude albums reported by the user
+        if user.is_authenticated:
+            reported_albums = Report.objects.filter(reported_by=user).values_list('album_id', flat=True)
+            albums = albums.exclude(id__in=reported_albums)
+
+        # If user is authenticated but not staff, filter based on privacy settings
+        if user.is_authenticated:
+            return albums.filter(
+                Q(privacy="public", moderation_status=ModerationStatus.APPROVED) |
+                Q(privacy="users", moderation_status=ModerationStatus.APPROVED) |
+                Q(privacy="followers", user__followers__follower=user, moderation_status=ModerationStatus.APPROVED) |
+                Q(privacy="private", user=user, moderation_status=ModerationStatus.APPROVED)
+            ).distinct()
+        else:
+            return albums.filter(privacy="public", moderation_status=ModerationStatus.APPROVED).distinct()
 
 # ----------------------------------------------------------------------------- 
 # Helper Functions
@@ -261,6 +289,12 @@ class Album(models.Model):
     images = models.ManyToManyField(Image, related_name="albums", through="AlbumImage")
     cover_image = models.ForeignKey(Image, on_delete=models.SET_NULL, null=True, blank=True, related_name='cover_for_albums')
     created_at = models.DateTimeField(auto_now_add=True)
+    views = models.PositiveIntegerField(default=0)
+    privacy = models.CharField(max_length=10, choices=[('public', 'Public'), ('users', 'Site Members Only'), ('followers', 'Followers Only'), ('private', 'Private')], default='public')
+    moderation_status = models.CharField(max_length=10, choices=ModerationStatus.choices, default=ModerationStatus.PENDING)
+    moderation_updated_at = models.DateTimeField(null=True, blank=True)
+    moderated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="moderated_albums")
+    objects = CustomAlbumManager()
 
     def __str__(self):
         return self.name
@@ -270,8 +304,16 @@ class Album(models.Model):
             self.cover_image = self.images.first()
 
     def save(self, *args, **kwargs):
-        self.set_default_cover_image()
+        if self.pk:
+            self.popularity_score = self.calculate_popularity_score()
+        if self.moderation_status != ModerationStatus.PENDING:
+            self.moderation_updated_at = now()
         super().save(*args, **kwargs)
+
+    def calculate_popularity_score(self):
+        """Calculates the popularity score based on likes and views."""
+        likes_count = self.liked_by.count()
+        return (likes_count * 2) + self.views
 
     @classmethod
     def get_or_create_favorites_album(cls, user):
@@ -332,7 +374,36 @@ class Report(models.Model):
     def __str__(self):
         return f"Report by {self.reported_by.username} on {'image' if self.image else 'comment'}"
 
+class AlbumLike(models.Model):
+    """Represents a like on an album by a user."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="album_likes")
+    album = models.ForeignKey(Album, on_delete=models.CASCADE, related_name="liked_by")
+    liked_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ('user', 'album')
+
+
+class AlbumDislike(models.Model):
+    """Represents a dislike on an album by a user."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="album_dislikes")
+    album = models.ForeignKey(Album, on_delete=models.CASCADE, related_name="disliked_by")
+    disliked_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'album')
+
+class AlbumFavorite(models.Model):
+    """Represents an album that a user has marked as a favorite."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="album_favorites")
+    album = models.ForeignKey(Album, on_delete=models.CASCADE, related_name="favorited_by")
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'album')
+
+    def __str__(self):
+        return f"{self.user.username} favorites {self.album.name}"
 
 # ----------------------------------------------------------------------------- 
 # Moderation Functions
@@ -390,6 +461,27 @@ def dislike_image(user, image):
 def undislike_image(user, image):
     """Removes a dislike from an image."""
     Dislike.objects.filter(user=user, image=image).delete()
+
+def like_album(user, album):
+    """Likes an album, ensuring that any previous dislike is removed."""
+    AlbumDislike.objects.filter(user=user, album=album).delete()
+    AlbumLike.objects.get_or_create(user=user, album=album)
+
+
+def unlike_album(user, album):
+    """Removes a like from an album."""
+    AlbumLike.objects.filter(user=user, album=album).delete()
+
+
+def dislike_album(user, album):
+    """Dislikes an album, ensuring that any previous like is removed."""
+    AlbumLike.objects.filter(user=user, album=album).delete()
+    AlbumDislike.objects.get_or_create(user=user, album=album)
+
+
+def undislike_album(user, album):
+    """Removes a dislike from an album."""
+    AlbumDislike.objects.filter(user=user, album=album).delete()
 
 
 # ----------------------------------------------------------------------------- 
@@ -492,3 +584,12 @@ def set_cover_image(request):
         return JsonResponse({'success': False, 'error': 'Album not found'})
     except Image.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Image not found'})
+
+def add_album_to_favorites(user, album):
+    """Adds an album to the user's favorites."""
+    AlbumFavorite.objects.get_or_create(user=user, album=album)
+
+
+def remove_album_from_favorites(user, album):
+    """Removes an album from the user's favorites."""
+    AlbumFavorite.objects.filter(user=user, album=album).delete()
