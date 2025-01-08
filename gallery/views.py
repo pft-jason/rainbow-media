@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ReportForm, ImageUploadForm, UserRegistrationForm, UserProfileForm, ImageUpdateForm, CommentForm
 from django.contrib.auth.decorators import login_required
-from .models import Tag, Report, AlbumImage, add_image_to_album, Album, Follow, Image, get_image_visibility, UserProfile, search_images, Like, Dislike, Favorite, Comment, ModerationStatus, remove_from_favorites, add_to_favorites
+from .models import Tag, Report, AlbumImage, add_image_to_album, Album, Follow, Image, get_image_visibility, UserProfile, search_images, Like, Dislike, Favorite, Comment, ModerationStatus, remove_from_favorites, add_to_favorites, add_like_to_album, add_dislike_to_album, add_album_to_favorites
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse, JsonResponse
 from django.core.paginator import Paginator
@@ -13,6 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.http import require_POST
 from django.db.models import Count
+
 
 
 def staff_required(view_func):
@@ -431,3 +432,23 @@ def tagged_images_view(request, tag_id):
     tag = Tag.objects.get(id=tag_id)
     images = Image.objects.filter(tags=tag)
     return render(request, 'gallery/tags_gallery.html', {'tag': tag, 'images': images})
+
+def like_album_view(request, album_id):
+    album = get_object_or_404(Album, id=album_id)
+    add_like_to_album(request.user, album)
+    return redirect('album_detail', album_id=album_id)
+
+def dislike_album_view(request, album_id):
+    album = get_object_or_404(Album, id=album_id)
+    add_dislike_to_album(request.user, album)
+    return redirect('album_detail', album_id=album_id)
+
+def favorite_album_view(request, album_id):
+    album = get_object_or_404(Album, id=album_id)
+    add_album_to_favorites(request.user, album)
+    return redirect('album_detail', album_id=album_id)
+
+def report_album_view(request, album_id):
+    album = get_object_or_404(Album, id=album_id)
+    # Implement report logic here
+    return redirect('album_detail', album_id=album_id)

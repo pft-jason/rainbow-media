@@ -21,16 +21,19 @@
                 </a>
                 <i class="fas fa-book position-absolute" style="top: 10px; left: 10px; color: white; font-size: 24px; text-shadow: 1px 1px 2px black;"></i>
             </div>
-            <div style="position: absolute; bottom: 5px; left: 5px; color: white; padding: 5px; text-shadow: 1px 1px 2px black;">
-                <h6 class="card-title" style="margin: 0;">
-                    <a href="{% url 'album_detail' album.id %}" style="color: white; text-decoration: none;">{{ album.name }}</a>
-                </h6>
-                <p style="margin: 0; font-size: smaller;">
-                    <a href="{% url 'user_profile' album.user %}" style="color: white; text-decoration: none;">{{ album.user }}</a>
-                </p>
-                <p style="margin: 0; font-size: smaller;">
-                    {{ album.description }}
-                </p>
+            <div style="position: absolute; bottom: 0; right: 0; display: flex; flex-direction: column; align-items: flex-end; padding: 5px;">
+                <a href="{% url 'like_album' album.id %}" class="text-success" style="font-size: 18px; margin-bottom: 5px; text-shadow: 1px 1px 2px black;">
+                    <i class="fas fa-thumbs-up"></i>
+                </a>
+                <a href="{% url 'dislike_album' album.id %}" class="text-danger" style="font-size: 18px; margin-bottom: 5px; text-shadow: 1px 1px 2px black;">
+                    <i class="fas fa-thumbs-down"></i>
+                </a>
+                <a href="{% url 'favorite_album' album.id %}" class="text-warning" style="font-size: 18px; margin-bottom: 5px; text-shadow: 1px 1px 2px black;">
+                    <i class="fas fa-star"></i>
+                </a>
+                <a href="{% url 'report_album' album.id %}" class="text-danger" style="font-size: 18px; text-shadow: 1px 1px 2px black;">
+                    <i class="fas fa-flag"></i>
+                </a>
             </div>
         </div>
     </div>

@@ -462,7 +462,7 @@ def undislike_image(user, image):
     """Removes a dislike from an image."""
     Dislike.objects.filter(user=user, image=image).delete()
 
-def like_album(user, album):
+def add_like_to_album(user, album):
     """Likes an album, ensuring that any previous dislike is removed."""
     AlbumDislike.objects.filter(user=user, album=album).delete()
     AlbumLike.objects.get_or_create(user=user, album=album)
@@ -473,7 +473,7 @@ def unlike_album(user, album):
     AlbumLike.objects.filter(user=user, album=album).delete()
 
 
-def dislike_album(user, album):
+def add_dislike_to_album(user, album):
     """Dislikes an album, ensuring that any previous like is removed."""
     AlbumLike.objects.filter(user=user, album=album).delete()
     AlbumDislike.objects.get_or_create(user=user, album=album)

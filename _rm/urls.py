@@ -67,6 +67,10 @@ urlpatterns = [
     path('admin/system-logs/', views.admin_system_logs, name='admin_system_logs'),
     path('admin/reported-images/', views.admin_reported_images, name='admin_reported_images'),
     
+    path('like_album/<int:album_id>/', views.like_album_view, name='like_album'),
+    path('dislike_album/<int:album_id>/', views.dislike_album_view, name='dislike_album'),
+    path('favorite_album/<int:album_id>/', views.favorite_album_view, name='favorite_album'),
+    path('report_album/<int:album_id>/', views.report_album_view, name='report_album'),
     
     path('explore/tags/<int:tag_id>/', views.tagged_images_view, name='tagged_images'),
 
