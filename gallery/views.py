@@ -67,14 +67,19 @@ def search(request):
 @login_required
 def upload_image(request):
     if request.method == 'POST':
-        form = ImageUploadForm(request.POST, request.FILES)
+        form = ImageUploadForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
-            form.save(user=request.user, commit=True)        
+            image = form.save(commit=False)
+            image.user = request.user
+            image.save()
+            album_id = form.cleaned_data.get('album').id if form.cleaned_data.get('album') else None
+            if album_id:
+                add_image_to_album(request.user, image, album_id)
             return redirect('gallery')
         else:
             return render(request, 'upload_image.html', {'form': form, 'error': 'There was an error with your upload.'})
     else:
-        form = ImageUploadForm()
+        form = ImageUploadForm(user=request.user)
     return render(request, 'upload_image.html', {'form': form})
 
 from django.contrib.auth.decorators import login_required

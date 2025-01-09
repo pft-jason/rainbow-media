@@ -1,5 +1,5 @@
 from django import forms 
-from .models import Image, Category, Tag, UserProfile, Comment, Report
+from .models import Image, Category, Tag, UserProfile, Comment, Report, Album
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 import json
@@ -15,10 +15,17 @@ class ImageUploadForm(forms.ModelForm):
         required=False,
         help_text="Select a category."
     )
+    album = forms.ModelChoiceField(queryset=Album.objects.none(), required=False, label="Select Album")
 
     class Meta:
         model = Image
-        fields = ['image_file', 'title', 'description', 'category', 'alt_text', 'privacy']
+        fields = ['image_file', 'album', 'title', 'description', 'category', 'alt_text', 'privacy']
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['album'].queryset = Album.objects.filter(user=user)
 
     def save(self, user=None, commit=True):
         instance = super(ImageUploadForm, self).save(commit=False)

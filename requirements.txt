@@ -27,6 +27,7 @@ django-ratelimit==4.1.0
 django-redis==5.4.0
 django-sslserver==0.22
 django-storages==1.13.1
+django-widget-tweaks==1.4.1
 django_csp==3.8
 djangorestframework==3.13.1
 docutils==0.16

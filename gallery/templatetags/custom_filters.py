@@ -13,3 +13,7 @@ def is_active(request_path, url_name):
         return request_path == reverse(url_name)
     except:
         return False
+
+@register.filter(name='add_class')
+def add_class(field, css_class):
+    return field.as_widget(attrs={"class": css_class})
