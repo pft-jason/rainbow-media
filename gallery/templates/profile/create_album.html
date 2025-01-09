@@ -3,13 +3,15 @@
 {% block title %}Create Album{% endblock %}
 
 {% block content %}
-<h2>Create Album</h2>
-<form method="post">
-    {% csrf_token %}
-    <div class="form-group">
-        <label for="name">Album Name</label>
-        <input type="text" name="name" id="name" class="form-control" required>
-    </div>
-    <button type="submit" class="btn btn-primary">Create</button>
-</form>
+<div class="container mt-4">
+    <h2>Create Album</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="name">Album Name</label>
+            <input type="text" name="name" id="name" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+</div>
 {% endblock %}

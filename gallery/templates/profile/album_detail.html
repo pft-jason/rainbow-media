@@ -3,22 +3,24 @@
 {% block title %}{{ album.name }}{% endblock %}
 
 {% block content %}
-<h2>{{ album.name }}</h2>
+<div class="container mt-4">
+    <h2>{{ album.name }}</h2>
 
-<div class="row" id="sortable">
-    {% for album_image in album.albumimage_set.all %}
-        <div class="col-md-3 position-relative" data-id="{{ album_image.image.id }}">
-            <a href="{% url 'image_detail' album_image.image.id %}">
-                <img src="{{ album_image.image.image_file.url }}" alt="{{ album_image.image.alt_text|default:album_image.image.description|default:album_image.image.title }}" class="img-thumbnail" style="width: 100%;">
-            </a>
-            <div class="position-absolute" style="top: 10px; right: 25px; display: flex; align-items: center;">
-                <input type="checkbox" class="cover-checkbox" data-album-id="{{ album.id }}" data-image-id="{{ album_image.image.id }}" {% if album.cover_image == album_image.image %}checked{% endif %} style="margin: 0;">
+    <div class="row" id="sortable">
+        {% for album_image in album.albumimage_set.all %}
+            <div class="col-md-3 position-relative" data-id="{{ album_image.image.id }}">
+                <a href="{% url 'image_detail' album_image.image.id %}">
+                    <img src="{{ album_image.image.image_file.url }}" alt="{{ album_image.image.alt_text|default:album_image.image.description|default:album_image.image.title }}" class="img-thumbnail" style="width: 100%;">
+                </a>
+                <div class="position-absolute" style="top: 10px; right: 25px; display: flex; align-items: center;">
+                    <input type="checkbox" class="cover-checkbox" data-album-id="{{ album.id }}" data-image-id="{{ album_image.image.id }}" {% if album.cover_image == album_image.image %}checked{% endif %} style="margin: 0;">
+                </div>
             </div>
-        </div>
-    {% endfor %}
-</div>
+        {% endfor %}
+    </div>
 
-<button id="saveOrder" class="btn btn-primary">Save Order</button>
+    <button id="saveOrder" class="btn btn-primary">Save Order</button>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
 <script>

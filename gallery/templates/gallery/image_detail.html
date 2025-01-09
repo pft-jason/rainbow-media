@@ -3,15 +3,24 @@
 {% block title %}Gallery{% endblock %}
 
 {% block content %}
-<h2>{{ image.title }}</h2>
-<img src="{{ image.image_file.url }}" alt="{{ image.title }}">
-<p>{{ image.description }}</p>
 
+<div style="text-align: center;">
+    <img src="{{ image.image_file.url }}" alt="{{ image.title }}" style="max-width: 100%; max-height: calc(100vh - 160px); height: auto;">
+</div>
+
+
+<div class="bg-light">
+    test
+</div>
 {% if image.user == user %}
     <p>Uploaded by: <a href="{% url 'profile' %}">{{ image.user.username }}</a></p>
 {% else %}
     <p>Uploaded by: <a href="{% url 'user_profile' image.user.username %}">{{ image.user.username }}</a></p>
 {% endif %}
+<h2>{{ image.title }}</h2>
+
+
+<p>{{ image.description }}</p>
 
 {% if user.is_authenticated %}
     <h3>Add to Album</h3>

@@ -3,11 +3,13 @@
 {% block title %}{{ user_profile.user.username }}'s Albums{% endblock %}
 
 {% block content %}
-<h2>{{ user_profile.user.username }}'s Albums</h2>
+<div class="container mt-4">
+    <h2>{{ user_profile.user.username }}'s Albums</h2>
 
-<ul>
-    {% for album in user_albums %}
-        <li><a href="{% url 'album_detail' album.id %}">{{ album.name }}</a></li>
-    {% endfor %}
-</ul>
+    <ul>
+        {% for album in user_albums %}
+            <li><a href="{% url 'album_detail' album.id %}">{{ album.name }}</a></li>
+        {% endfor %}
+    </ul>
+</div>
 {% endblock %}

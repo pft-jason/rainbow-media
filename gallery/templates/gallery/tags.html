@@ -7,16 +7,17 @@
 {% block content %}
 
 {% include "components/filterbar.html" %}
-
 <div class="container mt-4">
-    <div class="d-flex flex-wrap">
-        {% for tag in tags %}
-        <div class="mr-2 mb-2">
-            <a href="{% url 'tagged_images' tag.id %}" class="badge badge-secondary" style="font-size: 1em; padding: 10px;">
-                {{ tag.name }}
-            </a>
+    <div class="container mt-4">
+        <div class="d-flex flex-wrap">
+            {% for tag in tags %}
+            <div class="mr-2 mb-2">
+                <a href="{% url 'tagged_images' tag.id %}" class="badge badge-secondary" style="font-size: 1em; padding: 10px;">
+                    {{ tag.name }}
+                </a>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
 </div>
 {% endblock %}

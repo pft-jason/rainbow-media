@@ -3,10 +3,12 @@
 {% block title %}Report Comment{% endblock %}
 
 {% block content %}
-<h2>Report Comment: {{ comment.content }}</h2>
-<form method="post" action="{% url 'report_comment' comment.id %}">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-danger">Submit Report</button>
-</form>
+<div class="container mt-4">
+    <h2>Report Comment: {{ comment.content }}</h2>
+    <form method="post" action="{% url 'report_comment' comment.id %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-danger">Submit Report</button>
+    </form>
+</div>
 {% endblock %}

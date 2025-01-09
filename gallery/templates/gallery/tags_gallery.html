@@ -6,7 +6,7 @@
 {% block content %}
 
 {% include "components/filterbar.html" %}
-
+<div class="container mt-4">
     <h1>Images tagged with "{{ tag.name }}"</h1>
     <div class="row">
         {% for image in page_obj %}
@@ -50,4 +50,5 @@
         </div>
         {% endfor %}
     </div>
-    {% endblock %}
+</div>
+{% endblock %}
