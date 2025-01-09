@@ -128,6 +128,13 @@ class UserProfileForm(forms.ModelForm):
         return instance
 
 class CommentForm(forms.ModelForm):
+    content = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Add a comment',
+        })
+    )
+
     class Meta:
         model = Comment
         fields = ['content']

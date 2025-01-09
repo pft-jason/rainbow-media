@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% load static %}
+
+{% load custom_filters %}
+
 {% block title %}Gallery{% endblock %}
 
 {% load static %}
@@ -100,7 +104,7 @@
             <p><i class="fas fa-image"></i> {{ image.width }} × {{ image.height }} — {{ image.format }} {{ image.size|filesizeformat }}</p>
         </div>
 
-        <div class="image-tags">
+        <div class="image-tags mb-4">
             {% for tag in image.tags.all %}
                 {% if forloop.counter <= 1 %}
                     <a href="{% url 'tagged_images' tag.id %}" class="badge badge-secondary">{{ tag.name }}</a>
@@ -113,29 +117,60 @@
             {% endif %}
         </div>
 
-        <p>{{ image.description }}</p>
+        {% if image.description %}
+        <div class="card bg-light p-2 mb-4">
+            
+            <p>{{ image.description }}</p>
 
-
+        </div>
+        {% endif %}
         
 
-        <h3>Comments</h3>
-        <ul>
-            {% for comment in comments %}
-                <li>
-                    <p>{{ comment.content }}</p>
-                    <a href="{% url 'report_comment' comment.id %}" class="text-danger">
-                        <i class="fas fa-flag" style="font-size: 24px;"></i> Report
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
 
-        <h3>Submit a Comment</h3>
-        <form method="post" action="{% url 'submit_comment' image.id %}">
-            {% csrf_token %}
-            {{ comment_form.as_p }}
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
+        <div class="d-flex align-items-start mb-3">
+            {% if user.userprofile.profile_picture %}
+                <img src="{{ user.userprofile.profile_picture.url }}" alt="Avatar" class="rounded-circle mr-3" style="width: 50px; height: 50px;">
+            {% else %}
+                <img src="{% static 'img/placeholder.png' %}" alt="Avatar" class="rounded-circle mr-3" style="width: 50px; height: 50px;">
+            {% endif %}
+            <form method="post" action="{% url 'submit_comment' image.id %}" class="flex-grow-1 d-flex align-items-center mt-2">
+                {% csrf_token %}
+                <div class="form-group flex-grow-1 mb-0">
+                    {{ comment_form.content }}
+                </div>
+                <button type="submit" class="btn btn-primary ml-2">Comment</button>
+            </form>
+        </div>
+
+        <h4>Comments ({{ comments|length }})</h4>
+            <div class="comments-section mb-4">
+                <ul class="list-group">
+                    {% for comment in comments %}
+                        <li class="list-group-item">
+                            <div class="d-flex align-items-start">
+                                {% if comment.user.userprofile.profile_picture %}
+                                    <img src="{{ comment.user.userprofile.profile_picture.url }}" alt="Avatar" class="rounded-circle mr-3" style="width: 50px; height: 50px;">
+                                {% else %}
+                                    <img src="{% static 'img/placeholder.png' %}" alt="Avatar" class="rounded-circle mr-3" style="width: 50px; height: 50px;">
+                                {% endif %}
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-1">{{ comment.user.username }}</h5>
+                                        <small class="text-muted">{{ comment.created_at|date:"F j, Y, g:i a" }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ comment.content }}</p>
+                                    <a href="{% url 'report_comment' comment.id %}" class="text-danger">
+                                        <i class="fas fa-flag"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+
+
     </div>
 </div>
 
@@ -163,7 +198,7 @@
         if (extraTags.length > 0 && moreTagsLink) {
             extraTags.forEach(function(tag) {
                 if (tag.style.display === 'none') {
-                    tag.style.display = 'inline';
+                    tag.style.display = 'inline-block';
                     moreTagsLink.textContent = 'Show less';
                 } else {
                     tag.style.display = 'none';

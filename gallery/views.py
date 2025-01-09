@@ -231,7 +231,7 @@ def image_detail(request, image_id):
         user_albums = Album.objects.none()  # or handle the case when the user is not authenticated
     # TODO: set up so user can select whether comments on their images are moderated or not.
     # comments = image.comments.filter(moderation_status=ModerationStatus.APPROVED)
-    comments = image.comments.all()
+    comments = image.comments.all().order_by('-created_at')
     return render(request, 'image_detail.html', {
         'image': image,
         'comment_form': comment_form,
