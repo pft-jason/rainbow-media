@@ -102,13 +102,13 @@
 
         <div class="image-tags">
             {% for tag in image.tags.all %}
-                {% if forloop.counter <= 5 %}
+                {% if forloop.counter <= 1 %}
                     <a href="{% url 'tagged_images' tag.id %}" class="badge badge-secondary">{{ tag.name }}</a>
                 {% else %}
                     <a href="{% url 'tagged_images' tag.id %}" class="badge badge-secondary extra-tags">{{ tag.name }}</a>
                 {% endif %}
             {% endfor %}
-            {% if image.tags.count > 5 %}
+            {% if image.tags.count > 1 %}
                 <a href="javascript:void(0);" id="more-tags-link" class="show-more-less" onclick="toggleExtraTags()">Show more</a>
             {% endif %}
         </div>
@@ -139,6 +139,10 @@
     </div>
 </div>
 
+
+
+
+
 <script>
     document.getElementById('toggle-button').addEventListener('click', function() {
         var select = document.getElementById('album_id');
@@ -155,22 +159,30 @@
 
     function toggleExtraTags() {
         var extraTags = document.querySelectorAll('.extra-tags');
-        var moreLink = document.getElementById('more-tags-link');
-        var isHidden = Array.from(extraTags).some(tag => tag.style.display === 'none');
-        extraTags.forEach(function(tag) {
-            tag.style.display = isHidden ? 'inline-block' : 'none';
-        });
-        moreLink.textContent = isHidden ? 'Show less' : 'Show more';
+        var moreTagsLink = document.getElementById('more-tags-link');
+        if (extraTags.length > 0 && moreTagsLink) {
+            extraTags.forEach(function(tag) {
+                if (tag.style.display === 'none') {
+                    tag.style.display = 'inline';
+                    moreTagsLink.textContent = 'Show less';
+                } else {
+                    tag.style.display = 'none';
+                    moreTagsLink.textContent = 'Show more';
+                }
+            });
+        }
     }
 
     // Ensure initial state is set correctly
     document.addEventListener('DOMContentLoaded', function() {
         var extraTags = document.querySelectorAll('.extra-tags');
         var moreLink = document.getElementById('more-tags-link');
-        extraTags.forEach(function(tag) {
-            tag.style.display = 'none';
-        });
-        moreLink.textContent = 'Show more';
+        if (extraTags.length > 0 && moreLink) {
+            extraTags.forEach(function(tag) {
+                tag.style.display = 'none';
+            });
+            moreLink.textContent = 'Show more';
+        }
     });
 </script>
 {% endblock %}
