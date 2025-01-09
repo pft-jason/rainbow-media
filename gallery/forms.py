@@ -16,6 +16,11 @@ class ImageUploadForm(forms.ModelForm):
         help_text="Select a category."
     )
     album = forms.ModelChoiceField(queryset=Album.objects.none(), required=False, label="Select Album")
+    description = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 3}),
+        required=False,
+        help_text="Enter a description."
+    )
 
     class Meta:
         model = Image
@@ -56,6 +61,11 @@ class ImageUpdateForm(forms.ModelForm):
         widget=forms.Select,
         required=False,
         help_text="Select a category."
+    )
+    description = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 3}),
+        required=False,
+        help_text="Enter a description."
     )
 
     class Meta:

@@ -1,37 +1,132 @@
 {% extends "base.html" %}
+{% load custom_filters %}
 
 {% block title %}Update Image{% endblock %}
 
 {% block content %}
-<h2>Update Image</h2>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="hidden" name="tags_to_remove" id="tags-to-remove">
-    <div id="tag-buttons">
-        {% for tag in form.instance.tags.all %}
-            <button type="button" class="tag-button btn btn-secondary" data-tag="{{ tag.name }}">{{ tag.name }} &times;</button>
-        {% endfor %}
-    </div>
-    <button type="submit" class="btn btn-primary my-4">Save</button>
-</form>
+
+<div class="col">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <div id="uploadContainer" class="upload-container">
+                        <img id="imagePreview" src="{{ form.instance.image_file.url }}" alt="Image Preview" style="max-width: 100%; height: auto; margin-top: 10px;">
+                        <input type="file" id="imageInput" name="image_file" style="display:none;">
+                        <div id="uploadPlaceholder" class="upload-placeholder" style="display:none;">
+                            <p>Drag & Drop your image here or click to upload</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Update Image</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-4">
+                            {{ form.title.label_tag }}
+                            {{ form.title|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group mb-4">
+                            {{ form.description.label_tag }}
+                            {{ form.description|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group mb-4">
+                            {{ form.category.label_tag }}
+                            {{ form.category|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group mb-4">
+                            {{ form.alt_text.label_tag }}
+                            {{ form.alt_text|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group mb-4">
+                            {{ form.privacy.label_tag }}
+                            {{ form.privacy|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group mb-4">
+                            {{ form.tags.label_tag }}
+                            {{ form.tags|add_class:"form-control" }}
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    {% if error %}
+        <div class="alert alert-danger mt-3">{{ error }}</div>
+    {% endif %}
+</div>
+
+<style>
+.upload-container {
+    position: relative;
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.upload-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    color: #aaa;
+}
+
+.upload-placeholder p {
+    margin: 0;
+}
+</style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const tagButtons = document.querySelectorAll('.tag-button');
-        const tagsToRemoveField = document.getElementById('tags-to-remove');
+document.getElementById('uploadContainer').addEventListener('click', function() {
+    document.getElementById('imageInput').click();
+});
 
-        tagButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const tagName = this.getAttribute('data-tag');
-                let tagsToRemove = tagsToRemoveField.value.split(',').filter(tag => tag.trim() !== '');
-                if (!tagsToRemove.includes(tagName)) {
-                    tagsToRemove.push(tagName);
-                }
-                tagsToRemoveField.value = tagsToRemove.join(',');
-                this.remove();
-            });
-        });
-    });
+document.getElementById('imageInput').addEventListener('change', function(event) {
+    var reader = new FileReader();
+    reader.onload = function(){
+        var output = document.getElementById('imagePreview');
+        output.src = reader.result;
+        output.style.display = 'block';
+        document.getElementById('uploadPlaceholder').style.display = 'none';
+    };
+    reader.readAsDataURL(event.target.files[0]);
+});
+
+document.getElementById('uploadContainer').addEventListener('dragover', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.classList.add('dragging');
+});
+
+document.getElementById('uploadContainer').addEventListener('dragleave', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.classList.remove('dragging');
+});
+
+document.getElementById('uploadContainer').addEventListener('drop', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.classList.remove('dragging');
+    var files = event.dataTransfer.files;
+    document.getElementById('imageInput').files = files;
+    var reader = new FileReader();
+    reader.onload = function(){
+        var output = document.getElementById('imagePreview');
+        output.src = reader.result;
+        output.style.display = 'block';
+        document.getElementById('uploadPlaceholder').style.display = 'none';
+    };
+    reader.readAsDataURL(files[0]);
+});
 </script>
+
 {% endblock %}
