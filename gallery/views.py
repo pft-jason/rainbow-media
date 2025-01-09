@@ -104,7 +104,7 @@ def update_image(request, image_id):
 
 @login_required
 def profile(request):
-    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+    user_profile = get_object_or_404(UserProfile, user=request.user)
     user_images = Image.objects.filter(user=request.user) [:8]  # Display the latest 8 images
     user_albums = Album.objects.filter(user=request.user) 
     return render(request, 'profile.html', {'user_profile': user_profile, 'user_images': user_images, 'user_albums': user_albums, 'is_following': False})

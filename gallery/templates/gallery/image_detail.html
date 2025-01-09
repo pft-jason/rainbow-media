@@ -2,58 +2,175 @@
 
 {% block title %}Gallery{% endblock %}
 
+{% load static %}
+
 {% block content %}
 
-<div style="text-align: center;">
-    <img src="{{ image.image_file.url }}" alt="{{ image.title }}" style="max-width: 100%; max-height: calc(100vh - 160px); height: auto;">
+<!-- Image -->
+<div style="background-color: black;">
+    <div style="text-align: center;">
+        <img src="{{ image.image_file.url }}" alt="{{ image.title }}" style="max-width: 100%; max-height: calc(100vh - 122px); height: auto;">
+    </div>
 </div>
 
-
+<!-- Image Detail Bar -->
 <div class="bg-light">
-    test
-</div>
-{% if image.user == user %}
-    <p>Uploaded by: <a href="{% url 'profile' %}">{{ image.user.username }}</a></p>
-{% else %}
-    <p>Uploaded by: <a href="{% url 'user_profile' image.user.username %}">{{ image.user.username }}</a></p>
-{% endif %}
-<h2>{{ image.title }}</h2>
-
-
-<p>{{ image.description }}</p>
-
-{% if user.is_authenticated %}
-    <h3>Add to Album</h3>
-    <form method="post" action="{% url 'add_to_album' image.id %}">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="album_id">Select Album</label>
-            <select name="album_id" id="album_id" class="form-control">
-                {% for album in user_albums %}
-                    <option value="{{ album.id }}">{{ album.name }}</option>
-                {% endfor %}
-            </select>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="my-2" style="display: flex; align-items: center;">
+                    {% if image.user.userprofile.profile_picture %}
+                        <img src="{{ image.user.userprofile.profile_picture.url }}" alt="{{ image.user.username }}" style="border-radius: 50%; width: 50px; height: 50px; margin-right: 10px;">
+                    {% else %}
+                        <img src="{% static 'img/placeholder.png' %}" alt="{{ image.user.username }}" style="border-radius: 50%; width: 50px; height: 50px; margin-right: 10px;">
+                    {% endif %}
+                    <div>
+                        <h5 style="margin-bottom: -2px;">{{ image.title }}</h5>
+                        {% if image.user == user %}
+                            <p class="mb-0">by <a href="{% url 'profile' %}" style="color: black;">{{ image.user.username }}</a></p>
+                        {% else %}
+                            <p class="mb-0">by <a href="{% url 'user_profile' image.user.username %}" style="color: black;">{{ image.user.username }}</a></p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col" style="display: flex; align-items: center; justify-content: flex-end;">
+                <div class="d-flex align-items-center">
+                    {% if user.is_authenticated %}
+                        <form method="post" action="{% url 'add_to_album' image.id %}" class="form-inline mr-2" id="add-to-album-form">
+                            {% csrf_token %}
+                            <div class="input-group mb-2">
+                                <select name="album_id" id="album_id" class="form-control" style="display: none;" onchange="this.form.submit()">
+                                    <option value="" disabled selected>Add to Album</option>
+                                    {% for album in user_albums %}
+                                        <option value="{{ album.id }}">{{ album.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-primary" id="toggle-button" style="border-radius: 0.25rem;">
+                                        <i class="fas fa-book"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    {% endif %}
+                    <a href="{% url 'like_image' image.id %}" class="btn btn-primary mb-2 mr-2"><i class="fas fa-thumbs-up"></i></a>
+                    <a href="{% url 'favorite_image' image.id %}" class="btn btn-secondary mb-2 mr-2"><i class="fas fa-star"></i></a>
+                    <a href="{{ image.image_file.url }}" download class="btn btn-success mb-2 mr-2"><i class="fas fa-download"></i></a>
+                    <a href="#" class="btn btn-info mb-2"><i class="fas fa-share"></i></a>
+                </div>
+            </div>
         </div>
-        <button type="submit" class="btn btn-primary">Add to Album</button>
-    </form>
-{% endif %}
 
-<h3>Comments</h3>
-<ul>
-    {% for comment in comments %}
-        <li>
-            <p>{{ comment.content }}</p>
-            <a href="{% url 'report_comment' comment.id %}" class="text-danger">
-                <i class="fas fa-flag" style="font-size: 24px;"></i> Report
-            </a>
-        </li>
-    {% endfor %}
-</ul>
+        <style>
+            .btn:focus {
+                outline: none;
+                box-shadow: none;
+            }
+            .image-details {
+                font-size: 0.8rem; /* Smaller text size */
 
-<h3>Submit a Comment</h3>
-<form method="post" action="{% url 'submit_comment' image.id %}">
-    {% csrf_token %}
-    {{ comment_form.as_p }}
-    <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+            }
+            .image-details i {
+                 font-size: 0.8rem; /* Match icon size to text size */
+            }
+            .image-tags .badge {
+                font-size: 0.875rem; /* Larger badge text size */
+                padding: 0.5em 0.75em; /* Increase padding for better readability */
+                margin-right: 0.25rem; /* Space between badges */
+            }
+            .image-tags .extra-tags {
+                display: none; /* Hide extra tags by default */
+            }
+            .show-more-less {
+                color: black; /* Make the text black */
+                text-decoration: underline; /* Always underline the text */
+                cursor: pointer; /* Change cursor to pointer */
+            }
+            .show-more-less:focus {
+                color: black; /* Keep the text black when focused */
+            }
+        </style>
+
+        
+        
+
+        <div class="image-details">
+            <!-- Font Awesome image icon -->
+            <p><i class="fas fa-image"></i> {{ image.width }} × {{ image.height }} — {{ image.format }} {{ image.size|filesizeformat }}</p>
+        </div>
+
+        <div class="image-tags">
+            {% for tag in image.tags.all %}
+                {% if forloop.counter <= 5 %}
+                    <a href="{% url 'tagged_images' tag.id %}" class="badge badge-secondary">{{ tag.name }}</a>
+                {% else %}
+                    <a href="{% url 'tagged_images' tag.id %}" class="badge badge-secondary extra-tags">{{ tag.name }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if image.tags.count > 5 %}
+                <a href="javascript:void(0);" id="more-tags-link" class="show-more-less" onclick="toggleExtraTags()">Show more</a>
+            {% endif %}
+        </div>
+
+        <p>{{ image.description }}</p>
+
+
+        
+
+        <h3>Comments</h3>
+        <ul>
+            {% for comment in comments %}
+                <li>
+                    <p>{{ comment.content }}</p>
+                    <a href="{% url 'report_comment' comment.id %}" class="text-danger">
+                        <i class="fas fa-flag" style="font-size: 24px;"></i> Report
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <h3>Submit a Comment</h3>
+        <form method="post" action="{% url 'submit_comment' image.id %}">
+            {% csrf_token %}
+            {{ comment_form.as_p }}
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('toggle-button').addEventListener('click', function() {
+        var select = document.getElementById('album_id');
+        var button = document.getElementById('toggle-button');
+        if (select.style.display === 'none' || select.style.display === '') {
+            select.style.display = 'block';
+            button.style.borderTopLeftRadius = '0';
+            button.style.borderBottomLeftRadius = '0';
+        } else {
+            select.style.display = 'none';
+            button.style.borderRadius = '0.25rem';
+        }
+    });
+
+    function toggleExtraTags() {
+        var extraTags = document.querySelectorAll('.extra-tags');
+        var moreLink = document.getElementById('more-tags-link');
+        var isHidden = Array.from(extraTags).some(tag => tag.style.display === 'none');
+        extraTags.forEach(function(tag) {
+            tag.style.display = isHidden ? 'inline-block' : 'none';
+        });
+        moreLink.textContent = isHidden ? 'Show less' : 'Show more';
+    }
+
+    // Ensure initial state is set correctly
+    document.addEventListener('DOMContentLoaded', function() {
+        var extraTags = document.querySelectorAll('.extra-tags');
+        var moreLink = document.getElementById('more-tags-link');
+        extraTags.forEach(function(tag) {
+            tag.style.display = 'none';
+        });
+        moreLink.textContent = 'Show more';
+    });
+</script>
 {% endblock %}

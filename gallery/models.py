@@ -152,7 +152,7 @@ class UserProfile(models.Model):
     bio = models.TextField(blank=True, null=True)
     profile_picture = models.ImageField(upload_to="profile_pics/", blank=True, null=True)
     social_links = models.JSONField(default=dict, blank=True)
-    privacy_settings = models.JSONField(default=dict)
+    privacy_settings = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
@@ -207,6 +207,11 @@ class Image(models.Model):
     objects = CustomImageManager()
     privacy = models.CharField(max_length=20, choices=[('public', 'Public'), ('users', 'Site Members Only'), ('followers', 'Followers Only'), ('private', 'Private')], default='public')
 
+    width = models.PositiveIntegerField(editable=False, null=True)
+    height = models.PositiveIntegerField(editable=False, null=True)
+    format = models.CharField(max_length=10, editable=False, null=True)
+    size = models.PositiveIntegerField(editable=False, null=True)
+
     moderation_status = models.CharField(max_length=10, choices=ModerationStatus.choices, default=ModerationStatus.PENDING)
     moderation_updated_at = models.DateTimeField(null=True, blank=True)
     moderated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="moderated_images", limit_choices_to={'is_staff': True})
@@ -218,6 +223,11 @@ class Image(models.Model):
             self.popularity_score = self.calculate_popularity_score()
         if self.moderation_status != ModerationStatus.PENDING:
             self.moderation_updated_at = now()
+        if not self.pk:  # Only calculate attributes for new images
+            with Image.open(self.image_file) as img:
+                self.width, self.height = img.size
+                self.format = img.format
+            self.size = self.image_file.size
         super().save(*args, **kwargs)
 
     def calculate_popularity_score(self):
@@ -593,3 +603,12 @@ def add_album_to_favorites(user, album):
 def remove_album_from_favorites(user, album):
     """Removes an album from the user's favorites."""
     AlbumFavorite.objects.filter(user=user, album=album).delete()
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.userprofile.save()
