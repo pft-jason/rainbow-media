@@ -1,5 +1,5 @@
 {% load custom_filters %}
-<div class="container mt-4">
+<div class="container mt-2">
     <div class="d-flex justify-content-between mb-3">
         <div class="filter-links">
             <a href="{% url 'gallery' %}" class="btn btn-link {% if request.path|startswith:'/explore/media/' %}active{% endif %}">
