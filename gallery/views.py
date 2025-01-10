@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ReportForm, ImageUploadForm, UserRegistrationForm, UserProfileForm, ImageUpdateForm, CommentForm
 from django.contrib.auth.decorators import login_required
-from .models import Tag, Report, AlbumImage, add_image_to_album, Album, Follow, Image, get_image_visibility, UserProfile, search_images, Like, Dislike, Favorite, Comment, ModerationStatus, remove_from_favorites, add_to_favorites, add_like_to_album, add_dislike_to_album, add_album_to_favorites
+from .models import Tag, Report, AlbumImage, add_image_to_album, Album, Follow, Image, get_image_visibility, UserProfile, search_images, Like, Favorite, Comment, ModerationStatus, remove_from_favorites, add_to_favorites, add_like_to_album, add_album_to_favorites
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse, JsonResponse
 from django.core.paginator import Paginator
@@ -250,20 +250,6 @@ def like_image(request, image_id):
     if not created:
         # If the like already exists, remove it (toggle like)
         like.delete()
-    else:
-        # If a dislike exists, remove it
-        Dislike.objects.filter(user=request.user, image=image).delete()
-    return redirect('image_detail', image_id=image.id)
-
-def dislike_image(request, image_id):
-    image = get_object_or_404(Image, id=image_id)
-    dislike, created = Dislike.objects.get_or_create(user=request.user, image=image)
-    if not created:
-        # If the dislike already exists, remove it (toggle dislike)
-        dislike.delete()
-    else:
-        # If a like exists, remove it
-        Like.objects.filter(user=request.user, image=image).delete()
     return redirect('image_detail', image_id=image.id)
 
 def download_image(request, image_id):
@@ -446,11 +432,6 @@ def tags_view(request):
 def like_album_view(request, album_id):
     album = get_object_or_404(Album, id=album_id)
     add_like_to_album(request.user, album)
-    return redirect('album_detail', album_id=album_id)
-
-def dislike_album_view(request, album_id):
-    album = get_object_or_404(Album, id=album_id)
-    add_dislike_to_album(request.user, album)
     return redirect('album_detail', album_id=album_id)
 
 def favorite_album_view(request, album_id):

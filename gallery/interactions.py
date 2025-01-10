@@ -16,17 +16,6 @@ from .utils import staff_required
 import json
 
 
-def dislike_image(request, image_id):
-    image = get_object_or_404(Image, id=image_id)
-    dislike, created = Dislike.objects.get_or_create(user=request.user, image=image)
-    if not created:
-        # If the dislike already exists, remove it (toggle dislike)
-        dislike.delete()
-    else:
-        # If a like exists, remove it
-        Like.objects.filter(user=request.user, image=image).delete()
-    return redirect('image_detail', image_id=image.id)
-
 def download_image(request, image_id):
     image = get_object_or_404(Image, id=image_id)
     # Implement your logic for downloading the image
@@ -159,11 +148,6 @@ def like_album_view(request, album_id):
     add_like_to_album(request.user, album)
     return redirect('album_detail', album_id=album_id)
 
-def dislike_album_view(request, album_id):
-    album = get_object_or_404(Album, id=album_id)
-    add_dislike_to_album(request.user, album)
-    return redirect('album_detail', album_id=album_id)
-
 def favorite_album_view(request, album_id):
     album = get_object_or_404(Album, id=album_id)
     add_album_to_favorites(request.user, album)
@@ -180,7 +164,4 @@ def like_image(request, image_id):
     if not created:
         # If the like already exists, remove it (toggle like)
         like.delete()
-    else:
-        # If a dislike exists, remove it
-        Dislike.objects.filter(user=request.user, image=image).delete()
     return redirect('image_detail', image_id=image.id)

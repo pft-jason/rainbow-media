@@ -270,16 +270,6 @@ class Like(models.Model):
         unique_together = ('user', 'image')
 
 
-class Dislike(models.Model):
-    """Represents a dislike on an image by a user."""
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="dislikes")
-    image = models.ForeignKey(Image, on_delete=models.CASCADE, related_name="dislikes")
-    disliked_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ('user', 'image')
-
-
 class Favorite(models.Model):
     """Represents an image that a user has marked as a favorite."""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="favorites")
@@ -394,16 +384,6 @@ class AlbumLike(models.Model):
     class Meta:
         unique_together = ('user', 'album')
 
-
-class AlbumDislike(models.Model):
-    """Represents a dislike on an album by a user."""
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="album_dislikes")
-    album = models.ForeignKey(Album, on_delete=models.CASCADE, related_name="disliked_by")
-    disliked_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ('user', 'album')
-
 class AlbumFavorite(models.Model):
     """Represents an album that a user has marked as a favorite."""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="album_favorites")
@@ -449,12 +429,10 @@ def add_to_favorites(user, image):
 
 
 # ----------------------------------------------------------------------------- 
-# Like/Dislike/Undislike Functions
+# Like Functions
 # -----------------------------------------------------------------------------
 
 def like_image(user, image):
-    """Likes an image, ensuring that any previous dislike is removed."""
-    Dislike.objects.filter(user=user, image=image).delete()
     Like.objects.get_or_create(user=user, image=image)
 
 
@@ -462,38 +440,13 @@ def unlike_image(user, image):
     """Removes a like from an image."""
     Like.objects.filter(user=user, image=image).delete()
 
-
-def dislike_image(user, image):
-    """Dislikes an image, ensuring that any previous like is removed."""
-    Like.objects.filter(user=user, image=image).delete()
-    Dislike.objects.get_or_create(user=user, image=image)
-
-
-def undislike_image(user, image):
-    """Removes a dislike from an image."""
-    Dislike.objects.filter(user=user, image=image).delete()
-
 def add_like_to_album(user, album):
-    """Likes an album, ensuring that any previous dislike is removed."""
-    AlbumDislike.objects.filter(user=user, album=album).delete()
     AlbumLike.objects.get_or_create(user=user, album=album)
 
 
 def unlike_album(user, album):
     """Removes a like from an album."""
     AlbumLike.objects.filter(user=user, album=album).delete()
-
-
-def add_dislike_to_album(user, album):
-    """Dislikes an album, ensuring that any previous like is removed."""
-    AlbumLike.objects.filter(user=user, album=album).delete()
-    AlbumDislike.objects.get_or_create(user=user, album=album)
-
-
-def undislike_album(user, album):
-    """Removes a dislike from an album."""
-    AlbumDislike.objects.filter(user=user, album=album).delete()
-
 
 # ----------------------------------------------------------------------------- 
 # Image Versioning and History

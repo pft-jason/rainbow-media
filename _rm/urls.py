@@ -28,7 +28,6 @@ urlpatterns = [
     path('image/<int:image_id>/update/', views.update_image, name='update_image'), 
     path('image/<int:image_id>/add_to_album/', views.add_to_album, name='add_to_album'),
     path('image/<int:image_id>/like/', views.like_image, name='like_image'),
-    path('image/<int:image_id>/dislike/', views.dislike_image, name='dislike_image'),
     path('image/<int:image_id>/download/', views.download_image, name='download_image'),
     path('image/<int:image_id>/favorite/', views.favorite_image, name='favorite_image'),
     path('image/<int:image_id>/comment/', views.submit_comment, name='submit_comment'),
@@ -69,7 +68,6 @@ urlpatterns = [
     path('admin/reported-images/', views.admin_reported_images, name='admin_reported_images'),
     
     path('like_album/<int:album_id>/', views.like_album_view, name='like_album'),
-    path('dislike_album/<int:album_id>/', views.dislike_album_view, name='dislike_album'),
     path('favorite_album/<int:album_id>/', views.favorite_album_view, name='favorite_album'),
     path('report_album/<int:album_id>/', views.report_album_view, name='report_album'),
 
