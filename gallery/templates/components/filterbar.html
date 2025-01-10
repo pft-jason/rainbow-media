@@ -3,7 +3,7 @@
     <div class="d-flex justify-content-between mb-3">
         <div class="filter-links">
             <a href="{% url 'gallery' %}" class="btn btn-link {% if request.path|startswith:'/explore/media/' %}active{% endif %}">
-                <i class="fas fa-photo-video"></i> Media
+                <i class="fas fa-images"></i> Images
             </a>
             <a href="{% url 'albums' %}" class="btn btn-link {% if request.path|startswith:'/explore/albums/' %}active{% endif %}">
                 <i class="fas fa-book"></i> Albums
