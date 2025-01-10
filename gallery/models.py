@@ -14,6 +14,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 import json
+from PIL import Image as PILImage
 
 
 
@@ -61,9 +62,9 @@ class CustomAlbumManager(models.Manager):
             return albums
 
         # Exclude albums reported by the user
-        if user.is_authenticated:
-            reported_albums = Report.objects.filter(reported_by=user).values_list('album_id', flat=True)
-            albums = albums.exclude(id__in=reported_albums)
+        # if user.is_authenticated:
+            # reported_albums = Report.objects.filter(reported_by=user).values_list('album_id', flat=True)
+            # albums = albums.exclude(id__in=reported_albums)
 
         # If user is authenticated but not staff, filter based on privacy settings
         if user.is_authenticated:
@@ -224,7 +225,7 @@ class Image(models.Model):
         if self.moderation_status != ModerationStatus.PENDING:
             self.moderation_updated_at = now()
         if not self.pk:  # Only calculate attributes for new images
-            with Image.open(self.image_file) as img:
+            with PILImage.open(self.image_file) as img:
                 self.width, self.height = img.size
                 self.format = img.format
             self.size = self.image_file.size

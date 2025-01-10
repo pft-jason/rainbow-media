@@ -50,6 +50,10 @@
                                 {{ form.tags.label_tag }}
                                 {{ form.tags|add_class:"form-control" }}
                             </div>
+                            <input type="hidden" name="tags_to_remove" id="tags-to-remove">
+                            {% for tag in form.instance.tags.all %}
+                                <button type="button" class="tag-button btn btn-secondary" data-tag="{{ tag.name }}">{{ tag.name }} &times;</button>
+                            {% endfor %}
                             <button type="submit" class="btn btn-primary w-100">Update</button>
                         </div>
                     </div>
@@ -128,6 +132,24 @@ document.getElementById('uploadContainer').addEventListener('drop', function(eve
     };
     reader.readAsDataURL(files[0]);
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+        const tagButtons = document.querySelectorAll('.tag-button');
+        const tagsToRemoveField = document.getElementById('tags-to-remove');
+
+        tagButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const tagName = this.getAttribute('data-tag');
+                let tagsToRemove = tagsToRemoveField.value.split(',').filter(tag => tag.trim() !== '');
+                if (!tagsToRemove.includes(tagName)) {
+                    tagsToRemove.push(tagName);
+                }
+                tagsToRemoveField.value = tagsToRemove.join(',');
+                this.remove();
+            });
+        });
+    });
+
 </script>
 
 {% endblock %}
