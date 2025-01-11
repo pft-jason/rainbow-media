@@ -5,7 +5,6 @@
 {% block content %}
 
 {% include "components/filterbar.html" %}
-<button onclick="notification('success', 'This is a test notification!')" class="btn btn-primary mt-4">Show Notification</button>
 <div class="container mt-4">
     <div class="row">
         {% for image in page_obj %}
@@ -29,17 +28,25 @@
                     </p>
                 </div>
                 <div style="position: absolute; bottom: 0; right: 0; display: flex; flex-direction: column; align-items: flex-end; padding: 5px;">
-                    <a href="{% url 'download_image' image.id %}" class="text-primary" style="font-size: 18px; margin-bottom: 5px; text-shadow: 1px 1px 2px black;">
+                    <a href="{% url 'download_image' image.id %}" class="download-icon" style="font-size: 18px; margin-bottom: 5px; text-shadow: 1px 1px 2px black;">
                         <i class="fas fa-download"></i>
                     </a>
-                    <a href="{% url 'like_image' image.id %}" class="text-success" style="font-size: 18px; margin-bottom: 5px; text-shadow: 1px 1px 2px black;">
-                        <i class="fas fa-thumbs-up"></i>
+                    <a href="{% url 'like_image' image.id %}" id="like-button-{{ image.id }}" class="like-icon" style="font-size: 18px; margin-bottom: 5px; text-shadow: 1px 1px 2px black;">
+                        {% if image.user_has_liked %}
+                            <i class="fas fa-thumbs-up"></i>
+                        {% else %}
+                            <i class="far fa-thumbs-up"></i>
+                        {% endif %}
                     </a>
-                    <a href="{% url 'favorite_image' image.id %}" class="text-warning" style="font-size: 18px; margin-bottom: 5px; text-shadow: 1px 1px 2px black;">
-                        <i class="fas fa-star"></i>
+                    <a href="{% url 'favorite_image' image.id %}" id="favorite-button-{{ image.id }}" class="favorite-icon" style="font-size: 18px; margin-bottom: 5px; text-shadow: 1px 1px 2px black;">
+                        {% if image.user_has_favorited %}
+                            <i class="fas fa-star"></i>
+                        {% else %}
+                            <i class="far fa-star"></i>
+                        {% endif %}
                     </a>
-                    <a href="{% url 'report_image' image.id %}" class="text-danger" style="font-size: 18px; text-shadow: 1px 1px 2px black;">
-                        <i class="fas fa-flag"></i>
+                    <a href="{% url 'report_image' image.id %}" class="report-icon" style="font-size: 18px; text-shadow: 1px 1px 2px black;">
+                        <i class="far fa-flag"></i>
                     </a>
                 </div>
                 
@@ -48,6 +55,88 @@
         {% endfor %}
     </div>
 </div>
+
+<style>
+    .download-icon {
+    color: green !important;
+    }
+
+    .like-icon {
+        color: blue !important;
+    }
+
+    .favorite-icon {
+        color: gold !important;
+    }
+
+    .report-icon {
+        color: red !important;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('[id^="like-button-"]').forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent the default link behavior
+
+                fetch(button.getAttribute('href'), {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ image_id: button.dataset.imageId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.liked) {
+                            notification('success', 'You liked the image!')
+                            button.innerHTML = '<i class="fas fa-thumbs-up"></i>';
+                        } else {
+                            notification('success', 'You unliked the image!')
+                            button.innerHTML = '<i class="far fa-thumbs-up"></i>';
+                        }
+                        
+                    } else {
+                        
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+        document.querySelectorAll('[id^="favorite-button-"]').forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent the default link behavior
+
+                fetch(button.getAttribute('href'), {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ image_id: button.dataset.imageId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.favorited) {
+                            notification('success', 'You favorited the image!')
+                            button.innerHTML = '<i class="fas fa-star"></i>';
+                        } else {
+                            notification('success', 'You unfavorited the image!')
+                            button.innerHTML = '<i class="far fa-star"></i>';
+                        }
+                    } else {
+                        // Handle error
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+    });
+</script>
 
 {% include "components/pagination.html" %}
 

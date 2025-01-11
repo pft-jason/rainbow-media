@@ -13,7 +13,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.http import require_POST
 from django.db.models import Count
-
+from django.db.models import Case, When, BooleanField
+from django.db.models import OuterRef, Exists
 
 
 def staff_required(view_func):
@@ -166,6 +167,14 @@ def gallery(request, tag_id=None):
     elif filter_type == 'most_favorited':
         images = images.annotate(favorite_count=Count('favorited_by')).order_by('-favorite_count')
 
+    # Annotate each image to see if the user has liked it
+    user_likes = Like.objects.filter(user=request.user, image=OuterRef('pk'))
+    user_favorites = Favorite.objects.filter(user=request.user, image=OuterRef('pk'))
+    images = images.annotate(
+        user_has_liked=Exists(user_likes),
+        user_has_favorited=Exists(user_favorites)    
+    )
+
     paginator = Paginator(images, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -245,12 +254,15 @@ def album_detail(request, album_id):
     return render(request, 'album_detail.html', {'album': album})
 
 def like_image(request, image_id):
-    image = get_object_or_404(Image, id=image_id)
-    like, created = Like.objects.get_or_create(user=request.user, image=image)
-    if not created:
-        # If the like already exists, remove it (toggle like)
-        like.delete()
-    return redirect('image_detail', image_id=image.id)
+    if request.method == 'POST':
+        image = get_object_or_404(Image, id=image_id)
+        like, created = Like.objects.get_or_create(user=request.user, image=image)
+        if not created:
+            # If the like already exists, remove it (toggle like)
+            like.delete()
+            return JsonResponse({'success': True, 'liked': False})
+        return JsonResponse({'success': True, 'liked': True})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 def download_image(request, image_id):
     image = get_object_or_404(Image, id=image_id)
@@ -262,13 +274,17 @@ def download_image(request, image_id):
 
 @login_required
 def favorite_image(request, image_id):
-    image = get_object_or_404(Image, id=image_id)
-    favorite, created = Favorite.objects.get_or_create(user=request.user, image=image)
-    if created:
-        add_to_favorites(request.user, image)
-    else:
-        remove_from_favorites(request.user, image)
-    return redirect('image_detail', image_id=image.id)
+    if request.method == 'POST':
+        image = get_object_or_404(Image, id=image_id)
+        favorite, created = Favorite.objects.get_or_create(user=request.user, image=image)
+        if created:
+            add_to_favorites(request.user, image)
+            return JsonResponse({'success': True, 'favorited': True})
+        else:
+            remove_from_favorites(request.user, image)
+            return JsonResponse({'success': True, 'favorited': False})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 @login_required
 def submit_comment(request, image_id):
