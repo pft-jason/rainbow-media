@@ -1,0 +1,68 @@
+<div id="notification-container" class="notification-container"></div>
+
+<style>
+    .notification-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .notification {
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 10px 20px;
+        margin-top: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 250px;
+    }
+
+    .notification.success {
+        border-left: 5px solid #28a745;
+    }
+
+    .notification.error {
+        border-left: 5px solid #dc3545;
+    }
+
+    .notification .close {
+        background: none;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+    }
+</style>
+
+<script>
+    function notification(type, message) {
+        const container = document.getElementById('notification-container');
+
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <span>${message}</span>
+            <button class="close" onclick="removeNotification(this)">&times;</button>
+        `;
+
+        // Append notification to container
+        container.appendChild(notification);
+
+        // Set timeout to remove notification after 3 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    function removeNotification(button) {
+        const notification = button.parentElement;
+        notification.remove();
+    }
+</script>
