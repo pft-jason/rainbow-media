@@ -70,12 +70,7 @@ def upload_image(request):
     if request.method == 'POST':
         form = ImageUploadForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
-            image = form.save(commit=False)
-            image.user = request.user
-            image.save()
-            album_id = form.cleaned_data.get('album').id if form.cleaned_data.get('album') else None
-            if album_id:
-                add_image_to_album(request.user, image, album_id)
+            form.save(user=request.user, commit=True) 
             return redirect('gallery')
         else:
             return render(request, 'upload_image.html', {'form': form, 'error': 'There was an error with your upload.'})
@@ -106,7 +101,7 @@ def update_image(request, image_id):
 @login_required
 def profile(request):
     user_profile = get_object_or_404(UserProfile, user=request.user)
-    user_images = Image.objects.filter(user=request.user) [:8]  # Display the latest 8 images
+    user_images = Image.objects.filter(user=request.user) [:12]  # Display the latest 8 images
     user_albums = Album.objects.filter(user=request.user) 
     return render(request, 'profile.html', {'user_profile': user_profile, 'user_images': user_images, 'user_albums': user_albums, 'is_following': False})
 
@@ -114,7 +109,7 @@ def profile(request):
 def user_profile(request, username):
     user_profile = get_object_or_404(UserProfile, user__username=username)
     user_images = Image.objects.filter(user=user_profile.user)
-    user_images = Image.objects.get_filtered_images(user=request.user).filter(id__in=user_images).order_by('-uploaded_at')[:8]
+    user_images = Image.objects.get_filtered_images(user=request.user).filter(id__in=user_images).order_by('-uploaded_at')[:12]
     user_albums = Album.objects.filter(user=user_profile.user) 
     is_following = Follow.objects.filter(follower=request.user, followed=user_profile.user).exists()
     
@@ -167,13 +162,14 @@ def gallery(request, tag_id=None):
     elif filter_type == 'most_favorited':
         images = images.annotate(favorite_count=Count('favorited_by')).order_by('-favorite_count')
 
-    # Annotate each image to see if the user has liked it
-    user_likes = Like.objects.filter(user=request.user, image=OuterRef('pk'))
-    user_favorites = Favorite.objects.filter(user=request.user, image=OuterRef('pk'))
-    images = images.annotate(
-        user_has_liked=Exists(user_likes),
-        user_has_favorited=Exists(user_favorites)    
-    )
+    if request.user.is_authenticated:    
+        # Annotate each image to see if the user has liked it
+        user_likes = Like.objects.filter(user=request.user, image=OuterRef('pk'))
+        user_favorites = Favorite.objects.filter(user=request.user, image=OuterRef('pk'))
+        images = images.annotate(
+            user_has_liked=Exists(user_likes),
+            user_has_favorited=Exists(user_favorites)    
+        )
 
     paginator = Paginator(images, 20)
     page_number = request.GET.get('page')
@@ -437,7 +433,7 @@ def set_cover_image(request):
         return JsonResponse({'success': False, 'error': 'Image not found'})
 
 def tags_view(request):
-    tags = Tag.objects.all()
+    tags = Tag.objects.all().order_by('name')
     return render(request, 'gallery/tags.html', {'tags': tags})
 
 # def tagged_images_view(request, tag_id):

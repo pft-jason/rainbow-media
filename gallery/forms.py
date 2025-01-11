@@ -37,13 +37,16 @@ class ImageUploadForm(forms.ModelForm):
         if user:
             instance.user = user
         tags = self.cleaned_data['tags']
+        album_id = self.cleaned_data.get('album').id if self.cleaned_data.get('album') else None
         if commit:
-            instance.save() 
+            instance.save()
             for tag_name in tags.split(','):
                 tag_name = tag_name.strip()
                 if tag_name:
                     tag, created = Tag.objects.get_or_create(name=tag_name)
                     instance.tags.add(tag)
+            if album_id:
+                add_image_to_album(user, instance, album_id)
             instance.save()
         return instance
 
